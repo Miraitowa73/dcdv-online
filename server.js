@@ -182,7 +182,10 @@ async function serveStatic(req, res, rawPathname, projectRoot = PROJECT_ROOT) {
     }
     const content = await fsp.readFile(targetPath);
     const mime = MIME_TYPES[path.extname(targetPath).toLowerCase()] || 'application/octet-stream';
-    sendText(res, 200, content, mime);
+    sendText(res, 200, content, mime, {
+      'Content-Disposition': 'inline',
+      'X-Content-Type-Options': 'nosniff',
+    });
   } catch (error) {
     sendText(res, 404, 'Not found');
   }
