@@ -74,6 +74,36 @@ const SENSITIVE_FILES = new Set([
   'start-dcdv.cmd',
 ]);
 const PUBLIC_IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.svg', '.webp']);
+const DEFAULT_CORS_ORIGINS = [
+  'https://miraitowa73.github.io',
+  'http://localhost:3030',
+  'http://127.0.0.1:3030',
+];
+
+function getAllowedCorsOrigins() {
+  const configured = String(process.env.DCDV_CORS_ORIGINS || '').trim();
+  if (!configured) return DEFAULT_CORS_ORIGINS;
+  return configured
+    .split(',')
+    .map((origin) => origin.trim().replace(/\/+$/, ''))
+    .filter(Boolean);
+}
+
+function getCorsHeaders(req) {
+  const origin = String(req.headers.origin || '').trim().replace(/\/+$/, '');
+  if (!origin) return {};
+
+  const allowed = getAllowedCorsOrigins();
+  if (!allowed.includes('*') && !allowed.includes(origin)) return {};
+
+  return {
+    'Access-Control-Allow-Origin': allowed.includes('*') ? '*' : origin,
+    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type,Authorization,X-Requested-With',
+    'Access-Control-Max-Age': '86400',
+    Vary: 'Origin',
+  };
+}
 
 function sendJson(res, statusCode, payload, headers = {}) {
   res.writeHead(statusCode, {
@@ -424,6 +454,16 @@ function createDcdvServer(options = {}) {
 
   return http.createServer(async (req, res) => {
     try {
+      const corsHeaders = getCorsHeaders(req);
+      for (const [name, value] of Object.entries(corsHeaders)) {
+        res.setHeader(name, value);
+      }
+      if (req.method === 'OPTIONS') {
+        res.writeHead(204);
+        res.end();
+        return;
+      }
+
       const parsed = new URL(req.url || '/', 'http://127.0.0.1');
       const pathname = parsed.pathname || '/';
 

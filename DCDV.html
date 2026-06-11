@@ -2478,9 +2478,24 @@
             updateWaveBlockingHint();
         }
 
+        const DCDV_FC_API_BASE = 'https://dcdv-online-beydonrfai.cn-hangzhou.fcapp.run';
+
+        function getDcdvApiBase() {
+            const override = String(window.DCDV_API_BASE || '').trim().replace(/\/+$/, '');
+            if (override) return override;
+
+            const host = window.location.hostname.toLowerCase();
+            if (host === 'miraitowa73.github.io') return DCDV_FC_API_BASE;
+            return '';
+        }
+
+        function resolveDcdvApiUrl(endpoint) {
+            return `${getDcdvApiBase()}${endpoint}`;
+        }
+
         async function callLocalApi(endpoint, options = {}) {
             const { method = 'GET', body } = options;
-            const response = await fetch(endpoint, {
+            const response = await fetch(resolveDcdvApiUrl(endpoint), {
                 method,
                 headers: body ? { 'Content-Type': 'application/json' } : undefined,
                 body: body ? JSON.stringify(body) : undefined
