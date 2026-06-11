@@ -8,8 +8,6 @@ release/
 runtime/
 tests/
 tools/
-备份/
-学习系统案例/
 
 *.zip
 *.log
