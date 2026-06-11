@@ -1,0 +1,17 @@
+.edge-profile/
+history/
+node_modules/
+PPT/
+release/
+runtime/
+tests/
+tools/
+备份/
+学习系统案例/
+
+*.zip
+*.log
+
+deepseek.config.json
+deepseek.config.*.json
+.env

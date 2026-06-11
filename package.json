@@ -1,0 +1,14 @@
+{
+  "name": "dcdv-local-backend",
+  "version": "1.0.0",
+  "description": "DCDV local backend with real Verilog compile/simulate flow",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "package:portable": "powershell -ExecutionPolicy Bypass -File .\\build-portable.ps1",
+    "test": "node --test tests/verilog-backend.test.js tests/server.test.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.59.1"
+  }
+}
