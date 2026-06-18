@@ -4389,15 +4389,59 @@
             showToast('本小关电路已重置', 'info');
         }
 
+        function clampChallengeGateSpawn(value, min, max) {
+            if (!Number.isFinite(value)) return Number.isFinite(min) ? min : 0;
+            if (!Number.isFinite(min) || !Number.isFinite(max)) return value;
+            if (max < min) return (min + max) / 2;
+            return Math.max(min, Math.min(max, value));
+        }
+
+        function getChallengeGateSpawnPoint(type, gateCount) {
+            const fallback = {
+                x: 300 + (gateCount % 4) * 92,
+                y: 170 + Math.floor(gateCount / 4) * 72
+            };
+            const surface = document.getElementById('challenge-sch-surface');
+            if (!surface) return fallback;
+            const rect = surface.getBoundingClientRect();
+            if (rect.width <= 0 || rect.height <= 0) return fallback;
+
+            const spec = getGateSpec({ type, label: type });
+            const scale = Math.max(0.1, schState.viewport?.scale || 1);
+            const margin = 28;
+            const leftInset = Math.min(220, Math.max(96, rect.width * 0.26));
+            const rightInset = Math.min(180, Math.max(72, rect.width * 0.18));
+            const topInset = Math.min(132, Math.max(92, rect.height * 0.28));
+            const columns = Math.max(1, Math.floor((rect.width - leftInset - rightInset) / 112));
+            const slot = gateCount % Math.max(columns * 3, 1);
+            const desiredScreenX = leftInset + (slot % columns) * 112;
+            const desiredScreenY = topInset + Math.floor(slot / columns) * 82;
+            const minScreenX = margin;
+            const minScreenY = margin;
+            const maxScreenX = Math.max(minScreenX, rect.width - spec.w * scale - margin);
+            const maxScreenY = Math.max(minScreenY, rect.height - spec.h * scale - margin);
+            const screenX = clampChallengeGateSpawn(desiredScreenX, minScreenX, maxScreenX);
+            const screenY = clampChallengeGateSpawn(desiredScreenY, minScreenY, maxScreenY);
+            const worldPoint = getWorldPoint('sch', rect.left + screenX, rect.top + screenY);
+            const minWorldX = (minScreenX - schState.viewport.x) / scale;
+            const minWorldY = (minScreenY - schState.viewport.y) / scale;
+            const maxWorldX = (maxScreenX - schState.viewport.x) / scale;
+            const maxWorldY = (maxScreenY - schState.viewport.y) / scale;
+
+            return {
+                x: Math.round(clampChallengeGateSpawn(Math.round(worldPoint.x / 10) * 10, minWorldX, maxWorldX)),
+                y: Math.round(clampChallengeGateSpawn(Math.round(worldPoint.y / 10) * 10, minWorldY, maxWorldY))
+            };
+        }
+
         function addChallengeGate(type) {
             const { group, level } = getActiveChallenge();
             if (!group || !level || level.buildMode !== 'gate-schematic') return;
             prepareChallengeSchematic(group, level, { save: false });
             const gateCount = schState.components.filter(comp => !['IN', 'OUT'].includes(comp.type)).length;
-            const x = 260 + (gateCount % 4) * 92;
-            const y = 72 + Math.floor(gateCount / 4) * 72;
-            createSchematicComponent(type, type, x, y);
-            schState.selectedComp = schState.idSeed;
+            const pos = getChallengeGateSpawnPoint(type, gateCount);
+            const comp = createSchematicComponent(type, type, pos.x, pos.y);
+            schState.selectedComp = comp.id;
             schState.selectedWire = null;
             renderSch();
             persistChallengeSchematicDraft();
