@@ -6,6 +6,9 @@
     <title>DCDV - Digital Circuit Design Visualizer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        window.lucide = window.lucide || { createIcons() {} };
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -228,6 +231,474 @@
         .workflow-step.completed .workflow-step-index {
             background: rgba(16, 185, 129, 0.22);
             color: #a7f3d0;
+        }
+        .challenge-strip {
+            margin-top: 12px;
+            border-top: 1px solid rgba(148, 163, 184, 0.12);
+            padding-top: 12px;
+        }
+        .challenge-card {
+            border: 1px solid rgba(148, 163, 184, 0.12);
+            background: rgba(15, 23, 42, 0.72);
+            border-radius: 1rem;
+            transition: transform .18s ease, border-color .18s ease, background .18s ease;
+        }
+        .challenge-card:hover {
+            transform: translateY(-1px);
+            border-color: rgba(34, 211, 238, 0.34);
+            background: rgba(15, 23, 42, 0.9);
+        }
+        .challenge-card.active {
+            border-color: rgba(34, 211, 238, 0.55);
+            box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.12), 0 16px 36px rgba(2, 6, 23, 0.22);
+        }
+        .challenge-card.focus-pulse {
+            border-color: rgba(34, 211, 238, 0.86);
+            box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.16), 0 18px 42px rgba(2, 6, 23, 0.3);
+        }
+        .challenge-group-card {
+            min-height: 132px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .challenge-group-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .challenge-group-label {
+            color: #67e8f9;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .challenge-group-title {
+            margin-top: 7px;
+            color: #f8fafc;
+            font-size: 18px;
+            line-height: 1.25;
+            font-weight: 750;
+        }
+        .challenge-group-count {
+            color: #cbd5e1;
+            font-size: 30px;
+            line-height: 1;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+        .challenge-group-count.done {
+            color: #a7f3d0;
+        }
+        .challenge-group-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            min-width: 0;
+            padding-top: 12px;
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
+        }
+        .challenge-group-current {
+            min-width: 0;
+            overflow: hidden;
+            color: #cbd5e1;
+            font-size: 13px;
+            line-height: 1.35;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .challenge-group-state {
+            flex: 0 0 auto;
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 650;
+        }
+        .challenge-group-state.done {
+            color: #34d399;
+        }
+        .challenge-mode-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            background: rgba(15, 23, 42, 0.78);
+            padding: 5px 10px;
+            font-size: 11px;
+            color: #cbd5e1;
+        }
+        .challenge-path {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+        .challenge-path-step {
+            min-height: 104px;
+            border-radius: .9rem;
+            border: 1px solid rgba(71, 85, 105, 0.72);
+            background: rgba(15, 23, 42, 0.68);
+            padding: 14px;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .challenge-path-step.active {
+            border-color: rgba(34, 211, 238, 0.52);
+            background: rgba(8, 145, 178, 0.16);
+        }
+        .challenge-path-step.done {
+            border-color: rgba(16, 185, 129, 0.42);
+            background: rgba(6, 78, 59, 0.24);
+        }
+        .challenge-step-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .challenge-step-index {
+            color: rgba(103, 232, 249, 0.95);
+            font-size: 30px;
+            line-height: 1;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+        }
+        .challenge-path-step.done .challenge-step-index {
+            color: #a7f3d0;
+        }
+        .challenge-step-title {
+            margin-top: 12px;
+            color: #f8fafc;
+            font-size: 17px;
+            line-height: 1.25;
+            font-weight: 750;
+        }
+        .challenge-step-status {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 20px;
+            padding: 2px 7px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            font-size: 10px;
+            color: #94a3b8;
+        }
+        .challenge-step-status.active {
+            border-color: rgba(34, 211, 238, 0.35);
+            color: #67e8f9;
+            background: rgba(8, 145, 178, 0.12);
+        }
+        .challenge-step-status.done {
+            border-color: rgba(52, 211, 153, 0.34);
+            color: #a7f3d0;
+            background: rgba(6, 78, 59, 0.24);
+        }
+        .challenge-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .challenge-table th,
+        .challenge-table td {
+            border-bottom: 1px solid rgba(71, 85, 105, 0.55);
+            padding: 8px 10px;
+            text-align: center;
+        }
+        .challenge-table th {
+            color: #67e8f9;
+            background: rgba(15, 23, 42, 0.72);
+            font-weight: 600;
+        }
+        .challenge-table input {
+            width: 56px;
+            border-radius: .55rem;
+            border: 1px solid rgba(71, 85, 105, 0.9);
+            background: rgba(2, 6, 23, 0.72);
+            color: #e2e8f0;
+            padding: 5px 7px;
+            text-align: center;
+            outline: none;
+        }
+        .challenge-result {
+            border-radius: 1rem;
+            border: 1px solid rgba(71, 85, 105, 0.72);
+            background: rgba(2, 6, 23, 0.54);
+            padding: 12px;
+        }
+        .challenge-result.pass {
+            border-color: rgba(16, 185, 129, 0.42);
+            background: rgba(6, 78, 59, 0.22);
+        }
+        .challenge-result.fail {
+            border-color: rgba(248, 113, 113, 0.42);
+            background: rgba(127, 29, 29, 0.22);
+        }
+        .challenge-result.pending {
+            border-color: rgba(251, 191, 36, 0.38);
+            background: rgba(120, 53, 15, 0.2);
+        }
+        .challenge-image-card {
+            overflow: hidden;
+            padding: 0;
+        }
+        .challenge-image-card img {
+            display: block;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            background: rgba(2, 6, 23, 0.64);
+        }
+        .challenge-radar-card {
+            overflow: hidden;
+            padding: 14px;
+        }
+        .challenge-radar-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .challenge-radar-kicker {
+            color: #67e8f9;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .challenge-radar-title {
+            margin-top: 3px;
+            color: #f8fafc;
+            font-size: 15px;
+            line-height: 1.25;
+            font-weight: 780;
+        }
+        .challenge-radar-difficulty {
+            flex: 0 0 auto;
+            border-radius: 999px;
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            background: rgba(6, 78, 59, 0.22);
+            color: #a7f3d0;
+            padding: 5px 9px;
+            font-size: 11px;
+            font-weight: 750;
+            font-variant-numeric: tabular-nums;
+        }
+        .challenge-radar-svg {
+            display: block;
+            width: 100%;
+            max-width: 260px;
+            margin: 0 auto;
+        }
+        .challenge-radar-grid {
+            fill: none;
+            stroke: rgba(148, 163, 184, 0.22);
+            stroke-width: 1;
+        }
+        .challenge-radar-spoke {
+            stroke: rgba(71, 85, 105, 0.66);
+            stroke-width: 1;
+        }
+        .challenge-radar-area {
+            fill: rgba(34, 211, 238, 0.2);
+            stroke: #22d3ee;
+            stroke-width: 2;
+        }
+        .challenge-radar-point {
+            fill: #a7f3d0;
+            stroke: #0f172a;
+            stroke-width: 1;
+        }
+        .challenge-radar-axis {
+            fill: #94a3b8;
+            font-size: 10px;
+            font-weight: 650;
+        }
+        .challenge-radar-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        .challenge-radar-tag {
+            border-radius: 999px;
+            border: 1px solid rgba(34, 211, 238, 0.22);
+            background: rgba(8, 145, 178, 0.13);
+            color: #cffafe;
+            padding: 4px 8px;
+            font-size: 11px;
+            line-height: 1.2;
+            font-weight: 650;
+        }
+        .challenge-schematic-card {
+            overflow: hidden;
+        }
+        .challenge-schematic-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+            background: rgba(2, 6, 23, 0.34);
+        }
+        .challenge-schematic-tools,
+        .challenge-schematic-actions,
+        .challenge-fixed-ports {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+        .challenge-gate-btn,
+        .challenge-schematic-action {
+            min-height: 42px;
+            border-radius: 12px;
+            border: 1px solid rgba(71, 85, 105, 0.82);
+            background: rgba(15, 23, 42, 0.88);
+            color: #dbeafe;
+            padding: 0 13px;
+            font-size: 12px;
+            font-weight: 700;
+            transition: transform .16s ease, border-color .16s ease, background .16s ease, color .16s ease;
+        }
+        .challenge-gate-btn:hover,
+        .challenge-schematic-action:hover {
+            transform: translateY(-1px);
+            border-color: rgba(34, 211, 238, 0.42);
+            background: rgba(30, 41, 59, 0.96);
+            color: #67e8f9;
+        }
+        .challenge-gate-btn:active,
+        .challenge-schematic-action:active {
+            transform: scale(.97);
+        }
+        .challenge-schematic-action.danger:hover {
+            border-color: rgba(248, 113, 113, 0.46);
+            color: #fecaca;
+        }
+        .challenge-fixed-ports {
+            padding: 0 12px 12px;
+            color: #94a3b8;
+            font-size: 12px;
+        }
+        .challenge-fixed-ports span {
+            display: inline-flex;
+            align-items: center;
+            min-height: 28px;
+            border-radius: 999px;
+            border: 1px solid rgba(71, 85, 105, 0.62);
+            background: rgba(15, 23, 42, 0.7);
+            padding: 0 10px;
+        }
+        .challenge-schematic-surface {
+            height: 440px;
+            min-height: 360px;
+            border-top: 1px solid rgba(255,255,255,0.04);
+        }
+        .challenge-hdl-card {
+            overflow: hidden;
+        }
+        .challenge-hdl-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+            background: rgba(2, 6, 23, 0.34);
+        }
+        .challenge-hdl-actions,
+        .challenge-hdl-ports {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+        .challenge-hdl-action {
+            min-height: 42px;
+            border-radius: 12px;
+            border: 1px solid rgba(71, 85, 105, 0.82);
+            background: rgba(15, 23, 42, 0.88);
+            color: #dbeafe;
+            padding: 0 13px;
+            font-size: 12px;
+            font-weight: 700;
+            transition: transform .16s ease, border-color .16s ease, background .16s ease, color .16s ease, opacity .16s ease;
+        }
+        .challenge-hdl-action:hover:not(:disabled) {
+            transform: translateY(-1px);
+            border-color: rgba(34, 211, 238, 0.42);
+            background: rgba(30, 41, 59, 0.96);
+            color: #67e8f9;
+        }
+        .challenge-hdl-action:active:not(:disabled) {
+            transform: scale(.97);
+        }
+        .challenge-hdl-action:disabled {
+            cursor: wait;
+            opacity: .7;
+        }
+        .challenge-hdl-action.primary {
+            border-color: rgba(16, 185, 129, 0.42);
+            background: rgba(5, 150, 105, 0.9);
+            color: #ecfdf5;
+        }
+        .challenge-hdl-action.danger:hover:not(:disabled) {
+            border-color: rgba(248, 113, 113, 0.46);
+            color: #fecaca;
+        }
+        .challenge-hdl-ports {
+            padding: 0 12px 12px;
+            color: #94a3b8;
+            font-size: 12px;
+        }
+        .challenge-hdl-ports span {
+            display: inline-flex;
+            align-items: center;
+            min-height: 28px;
+            border-radius: 999px;
+            border: 1px solid rgba(71, 85, 105, 0.62);
+            background: rgba(15, 23, 42, 0.7);
+            padding: 0 10px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+        .challenge-hdl-editor {
+            display: block;
+            width: 100%;
+            min-height: 360px;
+            border: 0;
+            border-top: 1px solid rgba(255,255,255,0.04);
+            background: rgba(2, 6, 23, 0.7);
+            color: #dbeafe;
+            padding: 16px;
+            resize: vertical;
+            outline: none;
+            font-size: 13px;
+            line-height: 1.65;
+            tab-size: 4;
+        }
+        .challenge-hdl-editor:focus {
+            box-shadow: inset 0 0 0 1px rgba(34, 211, 238, 0.34);
+        }
+        #challenge-sch-wires,
+        #challenge-sch-preview {
+            overflow: visible;
+        }
+        .sch-gate.locked {
+            cursor: default;
+            border-color: rgba(34, 211, 238, 0.48);
+            background: linear-gradient(145deg, rgba(8,47,73,0.94), rgba(15,23,42,0.98));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 1px rgba(34,211,238,0.12), 0 10px 24px rgba(2,6,23,0.34);
+        }
+        .sch-gate.locked:hover {
+            transform: none;
+            border-color: rgba(103, 232, 249, 0.62);
         }
         .mode-guide {
             display: flex;
@@ -1434,6 +1905,90 @@
         .fsm-label { fill: #cbd5e1; font-size: 13px; text-anchor: middle; pointer-events: none; font-family: monospace; font-weight: bold; }
         .fsm-label.selected { fill: #f59e0b; }
         .fsm-label-bg { fill: #0f172a; opacity: 0.8; pointer-events: none; }
+        .challenge-fsm-card {
+            overflow: hidden;
+        }
+        .challenge-fsm-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+            background: rgba(2, 6, 23, 0.34);
+        }
+        .challenge-fsm-actions,
+        .challenge-fsm-edit-panel {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+        .challenge-fsm-action {
+            min-height: 38px;
+            border-radius: 12px;
+            border: 1px solid rgba(71, 85, 105, 0.82);
+            background: rgba(15, 23, 42, 0.88);
+            color: #dbeafe;
+            padding: 0 12px;
+            font-size: 12px;
+            font-weight: 700;
+            transition: transform .16s ease, border-color .16s ease, background .16s ease, color .16s ease;
+        }
+        .challenge-fsm-action:hover {
+            transform: translateY(-1px);
+            border-color: rgba(34, 211, 238, 0.42);
+            background: rgba(30, 41, 59, 0.96);
+            color: #67e8f9;
+        }
+        .challenge-fsm-action.danger:hover {
+            border-color: rgba(248, 113, 113, 0.45);
+            color: #fecaca;
+            background: rgba(127, 29, 29, 0.28);
+        }
+        .challenge-fsm-edit-input {
+            width: 150px;
+            border-radius: 10px;
+            border: 1px solid rgba(71, 85, 105, 0.88);
+            background: rgba(2, 6, 23, 0.82);
+            color: #67e8f9;
+            padding: 8px 10px;
+            font-family: monospace;
+            font-size: 12px;
+            outline: none;
+        }
+        .challenge-fsm-edit-input:focus {
+            border-color: rgba(34, 211, 238, 0.72);
+        }
+        .challenge-fsm-surface {
+            position: relative;
+            height: clamp(340px, 46vh, 520px);
+            min-height: 340px;
+            overflow: hidden;
+            background-size: 30px 30px;
+            touch-action: none;
+        }
+        .challenge-fsm-surface .fsm-trans-path {
+            marker-end: url(#challenge-fsm-arrow);
+        }
+        .challenge-fsm-surface .fsm-trans-path.selected {
+            marker-end: url(#challenge-fsm-arrow-selected);
+        }
+        .challenge-fsm-help {
+            border-top: 1px solid rgba(148, 163, 184, 0.12);
+            background: rgba(2, 6, 23, 0.28);
+            padding: 10px 12px;
+            color: #94a3b8;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+        .challenge-fsm-table {
+            max-height: 220px;
+            overflow: auto;
+            border-top: 1px solid rgba(148, 163, 184, 0.12);
+            background: rgba(2, 6, 23, 0.36);
+        }
 
         /* Dynamic Tables */
         .dcdv-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; }
@@ -1692,6 +2247,10 @@
                 <i data-lucide="layers" class="w-6 h-6 text-slate-400 group-hover:text-cyan-400"></i>
                 <span class="sidebar-label ml-4 font-medium">4 数模混合仿真（进阶）</span>
             </button>
+            <button onclick="switchTab('tab-challenge')" class="tab-btn flex items-center px-6 py-4 hover:bg-slate-800 transition-colors group">
+                <i data-lucide="flag" class="w-6 h-6 text-slate-400 group-hover:text-cyan-400"></i>
+                <span class="sidebar-label ml-4 font-medium">5 闯关教学</span>
+            </button>
         </div>
     </nav>
 
@@ -1731,6 +2290,7 @@
                         <span>运行仿真</span>
                     </div>
                 </div>
+                <div id="challenge-strip" class="challenge-strip hidden"></div>
             </div>
         </div>
 
@@ -1760,6 +2320,7 @@
                                 <button class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded text-slate-300 font-mono" onclick="insertLogicSymbol('|')">+ (|)</button>
                                 <button class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded text-yellow-400 font-mono" onclick="insertLogicSymbol('~')">‾ (~)</button>
                                 <button class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded text-slate-300 font-mono" onclick="insertLogicSymbol('^')">⊕ (^)</button>
+                                <button class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded text-slate-300 font-mono" onclick="insertLogicSymbol('~^')">⊙ (~^)</button>
                                 <button class="bg-red-900/30 hover:bg-red-800/50 px-4 py-2 rounded text-red-400 ml-2" onclick="clearLogicInput()"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
                             </div>
                             <div class="flex-1 relative bg-slate-950 rounded-lg border border-slate-700 p-8 flex items-center justify-center overflow-hidden">
@@ -2178,6 +2739,27 @@
                     </div>
                 </div>
             </div>
+
+            <!-- TAB 5: Challenge -->
+            <div id="tab-challenge" class="absolute inset-0 hidden flex-col p-6 bg-slate-950 min-h-0">
+                <div class="grid grid-cols-1 xl:grid-cols-[360px_minmax(0,1fr)] gap-4 flex-1 min-h-0">
+                    <div class="glass-panel panel-surface p-4 overflow-y-auto custom-scrollbar min-h-0">
+                        <div class="flex items-center justify-between gap-3 mb-3">
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-sm font-semibold text-slate-200">10 个大关卡</span>
+                                <span id="challenge-progress-summary" class="text-xs text-cyan-300">0 / 0</span>
+                            </div>
+                            <button type="button" class="primary-cta bg-slate-800 hover:bg-slate-700 px-3 py-2 text-xs" onclick="resetChallengeProgress()">
+                                重置进度
+                            </button>
+                        </div>
+                        <div id="challenge-group-list" class="space-y-3"></div>
+                    </div>
+                    <div class="glass-panel panel-surface p-4 overflow-y-auto custom-scrollbar min-h-0">
+                        <div id="challenge-detail"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -2250,6 +2832,1804 @@
             '文字描述': '适合先说需求，再让 AI 生成'
         };
         const workflowStepOrder = ['define', 'generate', 'compile', 'simulate'];
+        const challengeStorageKey = 'dcdvChallengeProgressV1';
+        function makeTruthRows(inputs, outputName, expr) {
+            return Array.from({ length: 1 << inputs.length }, (_, index) => {
+                const input = {};
+                inputs.forEach((name, bitIndex) => {
+                    input[name] = (index >> (inputs.length - 1 - bitIndex)) & 1;
+                });
+                const outputValue = typeof expr === 'function' ? expr(input) : (evaluateLogicExpr(expr, input) ? 1 : 0);
+                return {
+                    in: input,
+                    out: { [outputName]: outputValue ? 1 : 0 }
+                };
+            });
+        }
+
+        function rows(list) {
+            return list.map(([input, output]) => ({ in: input, out: output }));
+        }
+
+        const challengeCatalog = [
+            {
+                id: 'stairs',
+                title: '楼梯灯双控开关',
+                scenario: '如图所示，楼上、楼下各有一个开关，任何一端都能改变同一盏楼梯灯的状态。',
+                image: 'assets/challenges/stairs.png',
+                imageAlt: '楼梯灯双控开关场景图',
+                levels: [
+                    {
+                        id: 'truth',
+                        title: '填写真值表',
+                        buildMode: 'truth-table',
+                        task: '根据楼梯灯规则填出完整真值表。A/B 中 1 表示开关拨向上，0 表示开关拨向下；L 中 1 表示灯亮，0 表示灯灭。',
+                        tests: rows([[{ A: 0, B: 0 }, { L: 1 }], [{ A: 0, B: 1 }, { L: 0 }], [{ A: 1, B: 0 }, { L: 0 }], [{ A: 1, B: 1 }, { L: 1 }]]),
+                        hints: ['A/B 是两个开关的位置：1 表示向上，0 表示向下。L 是灯的状态：1 表示灯亮，0 表示灯灭。', '真值表的每一行只对应一种开关组合。', '参考真值表：00->1，01->0，10->0，11->1。'],
+                        reference: 'A B L：00 1，01 0，10 0，11 1。'
+                    },
+                    {
+                        id: 'expr',
+                        title: '推导逻辑表达式',
+                        buildMode: 'truth-table',
+                        practice: 'expression',
+                        task: '根据真值表写出 L 的表达式。请在下方输入框中写表达式，例如 (~A & ~B) | (A & B)。',
+                        tests: rows([[{ A: 0, B: 0 }, { L: 1 }], [{ A: 0, B: 1 }, { L: 0 }], [{ A: 1, B: 0 }, { L: 0 }], [{ A: 1, B: 1 }, { L: 1 }]]),
+                        hints: ['先找输出为 1 的两行。', '00 这一行对应 ~A & ~B，11 这一行对应 A & B。', '参考表达式：L = (~A & ~B) | (A & B)，也就是 A 与 B 的同或。'],
+                        reference: 'L = (~A & ~B) | (A & B)'
+                    },
+                    {
+                        id: 'gates',
+                        title: '搭建逻辑门电路',
+                        buildMode: 'gate-schematic',
+                        task: '输入 A/B 和输出 L 已固定。可以直接用同或门，也可以用非门、与门、或门搭出展开式电路。',
+                        tests: rows([[{ A: 0, B: 0 }, { L: 1 }], [{ A: 0, B: 1 }, { L: 0 }], [{ A: 1, B: 0 }, { L: 0 }], [{ A: 1, B: 1 }, { L: 1 }]]),
+                        hints: ['最短做法：A 和 B 接入同或门，输出接 L。', '展开式做法：用两个非门得到 ~A、~B，再分别做 (~A & ~B) 和 (A & B)。', '最后用一个或门把两个与门输出合成 L。'],
+                        reference: '参考电路 1：XNOR(A,B)->L。参考电路 2：NOT(A)、NOT(B)、AND(~A,~B)、AND(A,B)、OR 两个与门输出。'
+                    }
+                ]
+            },
+            {
+                id: 'voter',
+                title: '投票表决器',
+                scenario: '班级投票、评审审批和多人仲裁都需要“多数同意才通过”的规则。表决器能把人的选择变成稳定的数字逻辑。',
+                image: 'assets/challenges/voter.png',
+                imageAlt: '投票表决器场景图',
+                levels: [
+                    { id: 'truth3', title: '三人多数表决真值表', buildMode: 'truth-table', task: '3 名评委 A/B/C 中至少 2 人同意时 Y=1。', tests: makeTruthRows(['A','B','C'], 'Y', '(A&B)|(A&C)|(B&C)'), hints: ['“多数”就是 3 人里至少 2 人为 1。', '输出为 1 的行有 011、101、110、111。', '参考表达式：Y=AB+AC+BC。'], reference: 'Y = (A & B) | (A & C) | (B & C)' },
+                    { id: 'gates3', title: '搭建三人表决器', buildMode: 'gate-schematic', task: '输入 A/B/C 和输出 Y 已固定。用与门和或门搭建三人多数表决器。', tests: makeTruthRows(['A','B','C'], 'Y', '(A&B)|(A&C)|(B&C)'), hints: ['先做 AB、AC、BC 三个与项。', '再用或门把三个与项合并。', 'Y 端口已固定在右侧。'], reference: '三个二输入与门 + 一个多级或门。' },
+                    { id: 'truth4', title: '扩展四人多数表决', buildMode: 'truth-table', task: '4 名成员中至少 3 人同意时 Y=1。', tests: makeTruthRows(['A','B','C','D'], 'Y', (input) => (input.A + input.B + input.C + input.D) >= 3), hints: ['4 人多数可理解为 1 的个数不少于 3。', '输出为 1 的行包括 1110、1101、1011、0111、1111。', '可以用四个三变量与项再或起来。'], reference: 'Y = ABC | ABD | ACD | BCD' },
+                    { id: 'chair', title: '加入主席权重', buildMode: 'gate-schematic', task: 'A 是主席，权重为 2；B/C/D 权重为 1，总权重达到 3 时通过。', tests: rows([[{A:0,B:1,C:1,D:0},{Y:0}], [{A:1,B:1,C:0,D:0},{Y:1}], [{A:1,B:0,C:0,D:0},{Y:0}], [{A:0,B:1,C:1,D:1},{Y:1}], [{A:1,B:0,C:1,D:0},{Y:1}]]), hints: ['A=1 时还需要 B/C/D 中任意一个同意。', 'A=0 时需要 B/C/D 全部同意。', '参考表达式：Y = A&(B|C|D) | (~A&B&C&D)。'], reference: 'Y = (A & (B | C | D)) | (~A & B & C & D)' }
+                ]
+            },
+            {
+                id: 'decoder',
+                title: '电梯楼层译码器',
+                scenario: '电梯控制器内部用二进制编号表示楼层，译码器负责点亮对应楼层灯或把编号送到显示模块。',
+                image: 'assets/challenges/decoder.png',
+                imageAlt: '电梯楼层译码器场景图',
+                levels: [
+                    { id: 'floor-code', title: '认识 2 位楼层编号', buildMode: 'truth-table', task: '理解 2 位输入 A1/A0 可以表示 4 个楼层。', tests: rows([[{A1:0,A0:0},{Y0:1}], [{A1:0,A0:1},{Y0:0}], [{A1:1,A0:0},{Y0:0}], [{A1:1,A0:1},{Y0:0}]]), hints: ['00 可以代表 1 层，01 代表 2 层。', '本小关只填写 Y0 是否被点亮。', '当 A1A0=00 时，Y0=1。'], reference: '00->Y0，01->Y1，10->Y2，11->Y3。' },
+                    { id: 'dec24', title: '搭建 2-4 译码器', buildMode: 'gate-schematic', task: '输入 A1/A0 和输出 Y0-Y3 已固定。用非门和与门搭建 2-4 译码器。', tests: rows([[{A1:0,A0:0},{Y0:1,Y1:0,Y2:0,Y3:0}], [{A1:0,A0:1},{Y0:0,Y1:1,Y2:0,Y3:0}], [{A1:1,A0:0},{Y0:0,Y1:0,Y2:1,Y3:0}], [{A1:1,A0:1},{Y0:0,Y1:0,Y2:0,Y3:1}]]), hints: ['每个输出是一种输入组合。', 'Y0 = ~A1 & ~A0，Y3 = A1 & A0。', 'Y0、Y1、Y2、Y3 已固定在右侧。'], reference: 'Y0=~A1&~A0，Y1=~A1&A0，Y2=A1&~A0，Y3=A1&A0。' },
+                    { id: 'dec-enable', title: '加入使能端', buildMode: 'gate-schematic', task: '增加 EN，使能为 0 时所有楼层灯熄灭，使能为 1 时正常译码。', tests: rows([[{EN:0,A1:0,A0:0},{Y0:0,Y1:0,Y2:0,Y3:0}], [{EN:1,A1:0,A0:0},{Y0:1,Y1:0,Y2:0,Y3:0}], [{EN:1,A1:1,A0:1},{Y0:0,Y1:0,Y2:0,Y3:1}]]), hints: ['把 EN 与每一个译码输出再相与。', 'EN=0 是安全关闭状态。', '参考：Y0=EN&~A1&~A0。'], reference: 'Yi = EN & decode_i(A1,A0)。' },
+                    { id: 'seg-floor', title: '楼层编号接数码管', buildMode: 'hdl', task: '用 HDL 写一个 2 位楼层编号到七段数码管的显示模块，显示 1、2、3、4。端口必须是 input [1:0] floor 和 output reg [6:0] seg；本关使用高电平点亮，位序为 seg[6:0]={g,f,e,d,c,b,a}。', widths: { floor: 2, seg: 7 }, tests: rows([[{floor:'00'},{seg:'0000110'}], [{floor:'01'},{seg:'1011011'}], [{floor:'10'},{seg:'1001111'}], [{floor:'11'},{seg:'1100110'}]]), hints: ['这里用共阴极段码：1 表示该段点亮。', '位序是 seg[6:0]={g,f,e,d,c,b,a}，不是 {a,b,c,d,e,f,g}。', '端口名要叫 seg，不能写成 segs 或 SEG。'], reference: 'floor=00 显示 1: 0000110；01 显示 2: 1011011；10 显示 3: 1001111；11 显示 4: 1100110。' }
+                ]
+            },
+            {
+                id: 'lock',
+                title: '保险箱密码锁',
+                scenario: '门锁和保险箱需要比较输入密码与预设密码，并在错误时报警。这个关卡把比较器、相等判断和使能控制连起来。',
+                image: 'assets/challenges/lock.png',
+                imageAlt: '保险箱密码锁场景图',
+                levels: [
+                    { id: 'one-bit', title: '单位密码位比较', buildMode: 'gate-schematic', task: '用异或和非门判断输入 K 与密码 P 是否相等。', tests: rows([[{K:0,P:0},{EQ:1}], [{K:0,P:1},{EQ:0}], [{K:1,P:0},{EQ:0}], [{K:1,P:1},{EQ:1}]]), hints: ['异或表示不同。', '相等就是“不同”的反面。', 'EQ = ~(K ^ P)。'], reference: 'EQ = ~(K ^ P)' },
+                    { id: 'equal4', title: '组合 4 位密码比较', buildMode: 'gate-schematic', task: '判断 K3K2K1K0 是否等于固定密码 1010，输出 MATCH。', tests: rows([[{K3:1,K2:0,K1:1,K0:0},{MATCH:1}], [{K3:1,K2:0,K1:0,K0:0},{MATCH:0}], [{K3:0,K2:0,K1:1,K0:0},{MATCH:0}]]), hints: ['固定为 1 的位直接接原信号，固定为 0 的位先取反。', '四个位都满足时 MATCH 才为 1。', 'MATCH = K3 & ~K2 & K1 & ~K0。'], reference: 'MATCH = K3 & ~K2 & K1 & ~K0' },
+                    { id: 'enable', title: '加启用开关', buildMode: 'gate-schematic', task: '加入 D 作为钥匙/启用开关，只有 D=1 且密码正确时 OPEN=1。', tests: rows([[{D:0,K3:1,K2:0,K1:1,K0:0},{OPEN:0}], [{D:1,K3:1,K2:0,K1:1,K0:0},{OPEN:1}], [{D:1,K3:1,K2:1,K1:1,K0:0},{OPEN:0}]]), hints: ['OPEN 必须同时满足启用和匹配。', '先得到 MATCH，再与 D 相与。', 'OPEN = D & MATCH。'], reference: 'OPEN = D & K3 & ~K2 & K1 & ~K0' },
+                    { id: 'alarm', title: '加入报警输出', buildMode: 'gate-schematic', task: 'D=1 且密码错误时 ALARM=1；D=0 时不报警。', tests: rows([[{D:0,K3:1,K2:1,K1:1,K0:0},{OPEN:0,ALARM:0}], [{D:1,K3:1,K2:0,K1:1,K0:0},{OPEN:1,ALARM:0}], [{D:1,K3:1,K2:1,K1:1,K0:0},{OPEN:0,ALARM:1}]]), hints: ['报警不是 OPEN 的简单取反，因为 D=0 时也不报警。', '先得到 MATCH。', 'ALARM = D & ~MATCH。'], reference: 'OPEN=D&MATCH，ALARM=D&~MATCH。' }
+                ]
+            },
+            {
+                id: 'segment',
+                title: '数码管信息牌',
+                scenario: '仪表盘、分数牌和倒计时都离不开数码管。学生先理解七段显示，再逐步写出译码逻辑。',
+                image: 'assets/challenges/segment.png',
+                imageAlt: '数码管信息牌场景图',
+                levels: [
+                    { id: 'segments', title: '认识七段数码管', buildMode: 'truth-table', task: '七段位置：A=顶部，B=右上，C=右下，D=底部，E=左下，F=左上，G=中间。这里固定显示数字 1，请填写 A-G 是否点亮：1 表示点亮，0 表示熄灭。', tests: rows([[{DIGIT:1},{A:0,B:1,C:1,D:0,E:0,F:0,G:0}]]), hints: ['先记住位置：A 顶、B 右上、C 右下、D 底、E 左下、F 左上、G 中间。', '数字 1 只需要右侧两段亮。', '所以 B=1，C=1，其余段为 0。'], reference: '显示数字 1：A=0，B=1，C=1，D=0，E=0，F=0，G=0。' },
+                    { id: 'digit0', title: '用门电路显示数字 0', buildMode: 'gate-schematic', task: '输入 SHOW，SHOW=1 时点亮数字 0 所需的 a,b,c,d,e,f，g 熄灭。', tests: rows([[{SHOW:0},{A:0,B:0,C:0,D:0,E:0,F:0,G:0}], [{SHOW:1},{A:1,B:1,C:1,D:1,E:1,F:1,G:0}]]), hints: ['这一步是固定显示，重点是理解每一段都是一个输出。', 'a-f 可直接由 SHOW 驱动。', 'g 保持 0。'], reference: 'A-F=SHOW，G=0。' },
+                    { id: 'bcd-9', title: 'BCD 到 0-9 段码', buildMode: 'hdl', task: '用 case 语句实现 4 位 BCD 到七段段码，至少正确显示 0、1、2、9。', widths: { bcd: 4, seg: 7 }, tests: rows([[{bcd:'0000'},{seg:'0111111'}], [{bcd:'0001'},{seg:'0000110'}], [{bcd:'0010'},{seg:'1011011'}], [{bcd:'1001'},{seg:'1101111'}]]), hints: ['七段段码可以用 case 表驱动。', '非法输入可显示 0 或熄灭。', '端口建议：input [3:0] bcd，output reg [6:0] seg。'], reference: '0=0111111，1=0000110，2=1011011，9=1101111。' },
+                    { id: 'two-digit', title: '两位显示接口', buildMode: 'hdl', task: '输入 tens/ones 两个 BCD，分别输出 seg_tens 和 seg_ones。', widths: { tens: 4, ones: 4, seg_tens: 7, seg_ones: 7 }, tests: rows([[{tens:'0001',ones:'0010'},{seg_tens:'0000110',seg_ones:'1011011'}], [{tens:'0000',ones:'1001'},{seg_tens:'0111111',seg_ones:'1101111'}]]), hints: ['可以复用一个 bcd_to_seg 的 function。', '两个输出应各自对应一个数字。', '注意输出端口位宽都是 7。'], reference: 'seg_tens = decode(tens)，seg_ones = decode(ones)。' }
+                ]
+            },
+            {
+                id: 'register',
+                title: '触发器与寄存器工坊',
+                scenario: '按键记忆、状态保存和串并转换都需要触发器。这个关卡从 1 位记忆逐步走到多位寄存器。',
+                image: 'assets/challenges/register.png',
+                imageAlt: '触发器与寄存器工坊场景图',
+                levels: [
+                    { id: 'rs', title: 'RS 锁存逻辑', buildMode: 'truth-table', task: '理解 RS 的基本动作：S=1 置位，R=1 复位，S=R=0 保持。本小关填写非保持情形。', tests: rows([[{S:1,R:0},{Q:1}], [{S:0,R:1},{Q:0}], [{S:0,R:0},{Q:0}]]), hints: ['RS 是最基础的记忆单元。', '保持需要历史状态，本小关只判断明确置位/复位。', 'S=1,R=0 时 Q=1；S=0,R=1 时 Q=0。'], reference: 'S 置位，R 复位，00 保持，11 避免。' },
+                    { id: 'dff', title: 'D 触发器保存 1 位', buildMode: 'hdl', task: '实现带 rst 的 D 触发器：复位清 0，上升沿采样 d。', tests: rows([[{clk:0,rst:1,d:1},{q:0}], [{clk:1,rst:0,d:1},{q:1}], [{clk:0,rst:0,d:0},{q:1}], [{clk:1,rst:0,d:0},{q:0}]]), hints: ['使用 always @(posedge clk or posedge rst)。', 'rst 优先清零。', '非阻塞赋值 <= 更适合时序逻辑。'], reference: 'if (rst) q <= 0; else q <= d;' },
+                    { id: 'reg4', title: '4 位寄存器', buildMode: 'hdl', task: '把 4 个 D 触发器看成一组，输入 d[3:0]，上升沿保存到 q[3:0]。', widths: { d: 4, q: 4 }, tests: rows([[{clk:0,rst:1,d:'1010'},{q:'0000'}], [{clk:1,rst:0,d:'1010'},{q:'1010'}], [{clk:0,rst:0,d:'0011'},{q:'1010'}], [{clk:1,rst:0,d:'0011'},{q:'0011'}]]), hints: ['寄存器就是多位触发器并排。', 'q <= d 可以一次保存整组位。', '端口建议：input [3:0] d，output reg [3:0] q。'], reference: 'always @(posedge clk or posedge rst) 保存 4 位 d。' },
+                    { id: 'shift', title: '移位寄存器观察数据移动', buildMode: 'hdl', task: '实现 4 位左移寄存器，sin 串行输入，q[3:0] 并行输出。', widths: { q: 4 }, tests: rows([[{clk:0,rst:1,sin:1},{q:'0000'}], [{clk:1,rst:0,sin:1},{q:'0001'}], [{clk:0,rst:0,sin:0},{q:'0001'}], [{clk:1,rst:0,sin:0},{q:'0010'}], [{clk:0,rst:0,sin:1},{q:'0010'}], [{clk:1,rst:0,sin:1},{q:'0101'}]]), hints: ['每个上升沿把旧数据左移一位。', '最低位接收 sin。', 'q <= {q[2:0], sin};'], reference: '复位 q=0；否则 q <= {q[2:0], sin};' }
+                ]
+            },
+            {
+                id: 'counter',
+                title: '计数时钟塔',
+                scenario: '流水灯、秒表和周期节拍都依赖计数器。学生先看到翻转，再扩展到环形和分频。',
+                image: 'assets/challenges/counter.png',
+                imageAlt: '计数时钟塔场景图',
+                levels: [
+                    { id: 'toggle', title: '1 位翻转节拍', buildMode: 'hdl', task: '实现 1 位 T 型翻转效果：每个上升沿 q 取反，rst 清 0。', tests: rows([[{clk:0,rst:1},{q:0}], [{clk:1,rst:0},{q:1}], [{clk:0,rst:0},{q:1}], [{clk:1,rst:0},{q:0}]]), hints: ['D 触发器也能做翻转：D 接 ~Q。', 'HDL 中可以写 q <= ~q。', 'rst 时 q=0。'], reference: 'if(rst) q<=0; else q<=~q;' },
+                    { id: 'count2', title: '2 位同步计数器', buildMode: 'hdl', task: '实现 2 位同步加 1 计数器，rst 清 0。', widths: { q: 2 }, tests: rows([[{clk:0,rst:1},{q:'00'}], [{clk:1,rst:0},{q:'01'}], [{clk:0,rst:0},{q:'01'}], [{clk:1,rst:0},{q:'10'}], [{clk:0,rst:0},{q:'10'}], [{clk:1,rst:0},{q:'11'}]]), hints: ['同步计数器在同一个时钟沿整体更新。', 'q <= q + 1。', '位宽为 2 时会从 11 回到 00。'], reference: 'always @(posedge clk or posedge rst) q <= rst ? 0 : q + 1;' },
+                    { id: 'ring', title: '环形计数器驱动 LED', buildMode: 'hdl', task: '实现 4 位环形计数器，初始 0001，然后 0010、0100、1000 循环。', widths: { led: 4 }, tests: rows([[{clk:0,rst:1},{led:'0001'}], [{clk:1,rst:0},{led:'0010'}], [{clk:0,rst:0},{led:'0010'}], [{clk:1,rst:0},{led:'0100'}], [{clk:0,rst:0},{led:'0100'}], [{clk:1,rst:0},{led:'1000'}]]), hints: ['环形计数器只有一个 1 在移动。', '复位时可以装载 0001。', 'led <= {led[2:0], led[3]};'], reference: '复位 led=0001；否则循环左移。' },
+                    { id: 'divider', title: '加分频 tick 输出', buildMode: 'hdl', task: '实现教学版 4 分频 tick：计数到 3 时 tick=1 一拍，其余为 0。', widths: { cnt: 2 }, tests: rows([[{clk:0,rst:1},{tick:0,cnt:'00'}], [{clk:1,rst:0},{tick:0,cnt:'01'}], [{clk:0,rst:0},{tick:0,cnt:'01'}], [{clk:1,rst:0},{tick:0,cnt:'10'}], [{clk:0,rst:0},{tick:0,cnt:'10'}], [{clk:1,rst:0},{tick:0,cnt:'11'}], [{clk:0,rst:0},{tick:0,cnt:'11'}], [{clk:1,rst:0},{tick:1,cnt:'00'}]]), hints: ['推荐输出 tick，而不是把逻辑信号当新时钟。', 'cnt 到 3 后回 0。', 'tick 只在回 0 的那一拍为 1。'], reference: 'if(cnt==3) begin cnt<=0; tick<=1; end else begin cnt<=cnt+1; tick<=0; end' }
+                ]
+            },
+            {
+                id: 'quiz',
+                title: '智力竞赛抢答器',
+                scenario: '课堂抢答和竞赛答题需要锁定第一个按下按钮的人，后续按钮不能抢走资格。',
+                image: 'assets/challenges/quiz.png',
+                imageAlt: '智力竞赛抢答器场景图',
+                levels: [
+                    { id: 'priority', title: '四路输入优先判断', buildMode: 'gate-schematic', task: '用门电路实现四路抢答优先编码，P1 优先级最高，输出 W1-W4。', tests: rows([[{P1:1,P2:1,P3:0,P4:0},{W1:1,W2:0,W3:0,W4:0}], [{P1:0,P2:1,P3:1,P4:0},{W1:0,W2:1,W3:0,W4:0}], [{P1:0,P2:0,P3:0,P4:1},{W1:0,W2:0,W3:0,W4:1}]]), hints: ['低优先级要被高优先级屏蔽。', 'W2 = ~P1 & P2。', 'W4 = ~P1 & ~P2 & ~P3 & P4。'], reference: 'W1=P1，W2=~P1&P2，W3=~P1&~P2&P3，W4=~P1&~P2&~P3&P4。' },
+                    { id: 'lock-first', title: '锁存最先抢答者', buildMode: 'hdl', task: '实现锁存：一旦 winner 非 0，后续输入不再改变，rst 清零。', widths: { btn: 4, winner: 3 }, tests: rows([[{clk:0,rst:1,btn:'0000'},{winner:'000'}], [{clk:1,rst:0,btn:'0010'},{winner:'010'}], [{clk:0,rst:0,btn:'1000'},{winner:'010'}], [{clk:1,rst:0,btn:'1000'},{winner:'010'}]]), hints: ['winner==0 时才接受新输入。', 'btn 可以用优先判断决定编号。', 'rst 后才能重新抢答。'], reference: 'if(winner==0) 根据 btn 锁定 1/2/3/4。' },
+                    { id: 'reset', title: '复位清除锁存', buildMode: 'hdl', task: '加入 reset 按钮，主持人复位后可以重新抢答。', widths: { btn: 4, winner: 3 }, tests: rows([[{clk:0,rst:1,reset:0,btn:'0000'},{winner:'000'}], [{clk:1,rst:0,reset:0,btn:'0001'},{winner:'001'}], [{clk:0,rst:0,reset:1,btn:'0000'},{winner:'001'}], [{clk:1,rst:0,reset:1,btn:'0000'},{winner:'000'}], [{clk:0,rst:0,reset:0,btn:'0100'},{winner:'000'}], [{clk:1,rst:0,reset:0,btn:'0100'},{winner:'011'}]]), hints: ['reset 是同步清除按钮。', 'rst 是系统复位。', 'reset 后 winner 回 0，允许下一轮。'], reference: 'if(rst || reset) winner<=0; else if(winner==0) 锁定按钮。' },
+                    { id: 'score', title: '加减分显示', buildMode: 'hdl', task: '实现一个 0-9 分数寄存器，add 加 1，sub 减 1，边界保持。', widths: { score: 4 }, tests: rows([[{clk:0,rst:1,add:0,sub:0},{score:'0101'}], [{clk:1,rst:0,add:1,sub:0},{score:'0110'}], [{clk:0,rst:0,add:0,sub:1},{score:'0110'}], [{clk:1,rst:0,add:0,sub:1},{score:'0101'}]]), hints: ['初始分数设为 5。', 'score<9 才能加，score>0 才能减。', '后续可接数码管译码显示。'], reference: '复位 score=5；add 且 score<9 加一；sub 且 score>0 减一。' }
+                ]
+            },
+            {
+                id: 'accumulator',
+                title: '串行累加计算器',
+                scenario: '低资源计算单元常常用少量加法器和寄存器串行处理数据，适合理解“用时间换硬件”。',
+                image: 'assets/challenges/accumulator.png',
+                imageAlt: '串行累加计算器场景图',
+                levels: [
+                    { id: 'half-adder', title: '半加器', buildMode: 'gate-schematic', task: '用异或门和与门搭建 1 位半加器。', tests: rows([[{A:0,B:0},{SUM:0,CARRY:0}], [{A:0,B:1},{SUM:1,CARRY:0}], [{A:1,B:0},{SUM:1,CARRY:0}], [{A:1,B:1},{SUM:0,CARRY:1}]]), hints: ['和位是不进位加法。', '进位只有两个输入都为 1 时产生。', 'SUM=A^B，CARRY=A&B。'], reference: 'SUM = A ^ B，CARRY = A & B。' },
+                    { id: 'full-adder', title: '全加器', buildMode: 'gate-schematic', task: '组合两个半加器，加入 Cin，输出 SUM 和 COUT。', tests: makeTruthRows(['A','B','Cin'], 'SUM', (input) => (input.A ^ input.B ^ input.Cin) === 1).map((row) => ({ in: row.in, out: { ...row.out, COUT: ((row.in.A + row.in.B + row.in.Cin) >= 2) ? 1 : 0 } })), hints: ['先算 A+B 的半加器。', '再把中间和与 Cin 相加。', 'COUT = AB | A Cin | B Cin。'], reference: 'SUM=A^B^Cin，COUT=(A&B)|(A&Cin)|(B&Cin)。' },
+                    { id: 'carry-save', title: '保存进位和部分和', buildMode: 'hdl', task: '实现 1 位串行累加单元：输入 a,b，每拍输出 sum，并把 cout 保存为下一拍 cin。', tests: rows([[{clk:0,rst:1,a:0,b:0},{sum:0,carry:0}], [{clk:1,rst:0,a:1,b:1},{sum:0,carry:1}], [{clk:0,rst:0,a:0,b:0},{sum:0,carry:1}], [{clk:1,rst:0,a:0,b:0},{sum:1,carry:0}]]), hints: ['carry 是寄存器，不是普通组合线。', '当前 sum = a ^ b ^ carry。', '下一拍 carry 保存多数表决结果。'], reference: 'next_carry=(a&b)|(a&carry)|(b&carry)。' },
+                    { id: 'serial4', title: '4 位串行累加', buildMode: 'hdl', task: '输入 a[3:0]、b[3:0]，用普通加法模拟最终结果，输出 result[4:0]。这是串行累加器的功能验收关。', widths: { a: 4, b: 4, result: 5 }, tests: rows([[{a:'0011',b:'0101'},{result:'01000'}], [{a:'1111',b:'0001'},{result:'10000'}], [{a:'0110',b:'0011'},{result:'01001'}]]), hints: ['功能验收先关心结果是否正确。', 'result 需要 5 位保存进位。', '可以先用 result = a + b 通过，再思考如何改成真正串行结构。'], reference: 'result = {1\'b0,a} + {1\'b0,b};' }
+                ]
+            },
+            {
+                id: 'elevator',
+                title: '电梯控制器 FSM',
+                scenario: '电梯需要根据请求、方向和门控时间做状态决策，这是状态机最直观的实际应用。',
+                image: 'assets/challenges/elevator.png',
+                imageAlt: '电梯控制器场景图',
+                levels: [
+                    { id: 'two-floor', title: '两层电梯状态图', buildMode: 'fsm', task: '用状态图表示 F1/F2 两个楼层，请求 req2 时从 F1 到 F2，请求 req1 时从 F2 到 F1。', tests: rows([[{clk:0,rst:1,req1:0,req2:0},{state_out:'0'}], [{clk:1,rst:0,req1:0,req2:1},{state_out:'1'}], [{clk:0,rst:0,req1:0,req2:0},{state_out:'1'}], [{clk:1,rst:0,req1:1,req2:0},{state_out:'0'}]]), hints: ['每个楼层就是一个状态。', '转移标签可以写 req2 或 req1。', '无请求时保持当前状态。'], reference: 'F1 --req2--> F2，F2 --req1--> F1。' },
+                    { id: 'direction', title: '加入上/下行方向', buildMode: 'fsm', task: '增加 UP/DOWN 或方向状态，让状态图能表达电梯正在上行或下行。', tests: rows([[{clk:0,rst:1,up_req:0,down_req:0},{state_out:'00'}], [{clk:1,rst:0,up_req:1,down_req:0},{state_out:'01'}], [{clk:0,rst:0,up_req:0,down_req:0},{state_out:'01'}]]), hints: ['方向也可以看成状态。', '从停靠态收到上行请求后进入上行态。', '到达后再回停靠态。'], reference: 'IDLE -> UP -> DOOR -> IDLE。' },
+                    { id: 'door-hold', title: '开门保持计数', buildMode: 'hdl', task: '实现到站开门后保持 3 拍，door=1，计满后 door=0。', widths: { timer: 2 }, tests: rows([[{clk:0,rst:1,arrive:0},{door:0,timer:'00'}], [{clk:1,rst:0,arrive:1},{door:1,timer:'00'}], [{clk:0,rst:0,arrive:0},{door:1,timer:'00'}], [{clk:1,rst:0,arrive:0},{door:1,timer:'01'}], [{clk:0,rst:0,arrive:0},{door:1,timer:'01'}], [{clk:1,rst:0,arrive:0},{door:1,timer:'10'}], [{clk:0,rst:0,arrive:0},{door:1,timer:'10'}], [{clk:1,rst:0,arrive:0},{door:0,timer:'00'}]]), hints: ['开门保持需要寄存器保存 timer。', 'arrive 触发 door=1。', 'timer 计到 2 后下一拍关门。'], reference: 'door 打开后 timer 累加，计满清零并关门。' },
+                    { id: 'four-floor', title: '四层简化控制器', buildMode: 'hdl', task: '输入 target[1:0] 和 go，输出 floor[1:0]。go=1 时每拍向目标楼层靠近一步。', widths: { target: 2, floor: 2 }, tests: rows([[{clk:0,rst:1,go:0,target:'00'},{floor:'00'}], [{clk:1,rst:0,go:1,target:'11'},{floor:'01'}], [{clk:0,rst:0,go:1,target:'11'},{floor:'01'}], [{clk:1,rst:0,go:1,target:'11'},{floor:'10'}], [{clk:0,rst:0,go:1,target:'11'},{floor:'10'}], [{clk:1,rst:0,go:1,target:'11'},{floor:'11'}]]), hints: ['floor 小于 target 时加 1，大于 target 时减 1。', '等于目标时保持。', '这是一个简化但很像真实电梯调度的模型。'], reference: 'if(go && floor<target) floor<=floor+1; else if(go && floor>target) floor<=floor-1;' }
+                ]
+            }
+        ];
+
+        const challengeState = loadChallengeProgress();
+        let activeChallengeSchematicKey = null;
+        let activeChallengeFsmKey = null;
+        const challengeFsmData = {
+            states: [],
+            transitions: [],
+            idSeed: 0,
+            transSeed: 0,
+            selectedState: null,
+            selectedTrans: null,
+            pendingStart: null,
+            dragObj: null
+        };
+        const challengeKnowledgeAxes = [
+            { key: 'combo', label: '组合逻辑' },
+            { key: 'gate', label: '门级搭建' },
+            { key: 'hdl', label: 'HDL建模' },
+            { key: 'seq', label: '时序存储' },
+            { key: 'fsm', label: '状态控制' },
+            { key: 'verify', label: '仿真验证' }
+        ];
+
+        function getFirstChallengeLevel() {
+            const group = challengeCatalog[0];
+            return { group, level: group.levels[0] };
+        }
+
+        function getChallengeLevelKey(groupId, levelId) {
+            return `${groupId}:${levelId}`;
+        }
+
+        function findChallengeGroup(groupId) {
+            return challengeCatalog.find(group => group.id === groupId) || challengeCatalog[0];
+        }
+
+        function findChallengeLevel(groupId, levelId) {
+            const group = findChallengeGroup(groupId);
+            const level = group.levels.find(item => item.id === levelId) || group.levels[0];
+            return { group, level };
+        }
+
+        function findChallengeLevelByKey(levelKey) {
+            const [groupId, levelId] = String(levelKey || '').split(':');
+            return findChallengeLevel(groupId, levelId);
+        }
+
+        function getActiveChallenge() {
+            const fallback = getFirstChallengeLevel();
+            return findChallengeLevel(challengeState.activeGroupId || fallback.group.id, challengeState.activeLevelId || fallback.level.id);
+        }
+
+        function loadChallengeProgress() {
+            const fallback = {
+                activeGroupId: challengeCatalog[0]?.id || '',
+                activeLevelId: challengeCatalog[0]?.levels?.[0]?.id || '',
+                completed: {},
+                hints: {},
+                practice: {},
+                results: {},
+                compileResults: {},
+                schematicDrafts: {},
+                fsmDrafts: {}
+            };
+            try {
+                const raw = window.localStorage.getItem(challengeStorageKey);
+                if (!raw) return fallback;
+                const parsed = JSON.parse(raw);
+                return {
+                    ...fallback,
+                    ...parsed,
+                    completed: parsed.completed || {},
+                    hints: parsed.hints || {},
+                    practice: parsed.practice || {},
+                    results: parsed.results || {},
+                    compileResults: parsed.compileResults || {},
+                    schematicDrafts: parsed.schematicDrafts || {},
+                    fsmDrafts: parsed.fsmDrafts || {}
+                };
+            } catch (error) {
+                return fallback;
+            }
+        }
+
+        function saveChallengeProgress() {
+            try {
+                window.localStorage.setItem(challengeStorageKey, JSON.stringify(challengeState));
+            } catch (error) {}
+        }
+
+        function resetChallengeProgress() {
+            const first = getFirstChallengeLevel();
+            challengeState.activeGroupId = first.group.id;
+            challengeState.activeLevelId = first.level.id;
+            challengeState.completed = {};
+            challengeState.hints = {};
+            challengeState.practice = {};
+            challengeState.results = {};
+            challengeState.compileResults = {};
+            challengeState.schematicDrafts = {};
+            challengeState.fsmDrafts = {};
+            activeChallengeSchematicKey = null;
+            activeChallengeFsmKey = null;
+            saveChallengeProgress();
+            renderChallengeTab();
+            renderChallengeStrip();
+            showToast('闯关进度已重置', 'info');
+        }
+
+        function getChallengePractice(levelKey) {
+            if (!challengeState.practice[levelKey]) challengeState.practice[levelKey] = {};
+            return challengeState.practice[levelKey];
+        }
+
+        function updateChallengePractice(levelKey, rowIndex, outputName, value) {
+            const practice = getChallengePractice(levelKey);
+            if (!practice.rows) practice.rows = {};
+            if (!practice.rows[rowIndex]) practice.rows[rowIndex] = {};
+            practice.rows[rowIndex][outputName] = String(value || '').trim();
+            saveChallengeProgress();
+        }
+
+        function updateChallengeExpression(levelKey, value) {
+            const practice = getChallengePractice(levelKey);
+            practice.expression = value;
+            saveChallengeProgress();
+        }
+
+        function updateChallengeHdl(levelKey, value) {
+            const practice = getChallengePractice(levelKey);
+            practice.hdl = value;
+            if (!challengeState.compileResults) challengeState.compileResults = {};
+            if (challengeState.compileResults[levelKey]) {
+                challengeState.compileResults[levelKey] = {
+                    ok: false,
+                    stale: true,
+                    message: '代码已修改，建议重新检查。'
+                };
+                const resultNode = document.getElementById(`challenge-compile-result-${levelKey}`);
+                if (resultNode) resultNode.outerHTML = renderChallengeCompileResult(challengeState.compileResults[levelKey], levelKey);
+            }
+            saveChallengeProgress();
+        }
+
+        function getChallengeTotalLevels() {
+            return challengeCatalog.reduce((sum, group) => sum + group.levels.length, 0);
+        }
+
+        function countCompletedChallenges() {
+            return challengeCatalog.reduce((sum, group) => {
+                return sum + group.levels.filter(level => challengeState.completed[getChallengeLevelKey(group.id, level.id)]).length;
+            }, 0);
+        }
+
+        function renderChallengeTab() {
+            const list = document.getElementById('challenge-group-list');
+            const detail = document.getElementById('challenge-detail');
+            const summary = document.getElementById('challenge-progress-summary');
+            if (!list || !detail) return;
+            const active = getActiveChallenge();
+            if (summary) summary.textContent = `${countCompletedChallenges()} / ${getChallengeTotalLevels()}`;
+            const hydrateChallengeSchematic = activeTopTabId === 'tab-challenge' && active.level?.buildMode === 'gate-schematic';
+            const hydrateChallengeFsm = activeTopTabId === 'tab-challenge' && active.level?.buildMode === 'fsm';
+            if (hydrateChallengeSchematic) prepareChallengeSchematic(active.group, active.level);
+            if (hydrateChallengeFsm) prepareChallengeFsm(active.group, active.level);
+
+            list.innerHTML = challengeCatalog.map((group, index) => {
+                const completed = group.levels.filter(level => challengeState.completed[getChallengeLevelKey(group.id, level.id)]).length;
+                const isActive = group.id === active.group.id;
+                const total = group.levels.length;
+                const nextLevel = group.levels.find(level => !challengeState.completed[getChallengeLevelKey(group.id, level.id)]) || group.levels[group.levels.length - 1];
+                const done = completed === total;
+                return `
+                    <button type="button" class="challenge-card challenge-group-card ${isActive ? 'active' : ''} w-full p-4 text-left" onclick="selectChallengeGroup('${group.id}')">
+                        <div class="challenge-group-head">
+                            <div>
+                                <div class="challenge-group-label">大关卡 ${index + 1}</div>
+                                <div class="challenge-group-title">${escapeHtml(group.title)}</div>
+                            </div>
+                            <div class="challenge-group-count ${done ? 'done' : ''}">${completed}/${total}</div>
+                        </div>
+                        <div class="challenge-group-foot">
+                            <span class="challenge-group-current">${done ? '全部小关已完成' : `当前：${escapeHtml(nextLevel?.title || '')}`}</span>
+                            <span class="challenge-group-state ${done ? 'done' : ''}">${done ? '已完成' : '进行中'}</span>
+                        </div>
+                    </button>
+                `;
+            }).join('');
+
+            detail.innerHTML = renderChallengeDetail(active.group, active.level);
+            lucide.createIcons();
+            if (hydrateChallengeSchematic) {
+                renderSch();
+                requestAnimationFrame(() => {
+                    applyViewportTransform('sch');
+                    frameViewportWithPadding('sch', { left: 56, right: 56, top: 34, bottom: 34 });
+                });
+            }
+            if (hydrateChallengeFsm) {
+                renderChallengeFsm();
+            }
+        }
+
+        function renderChallengeDetail(group, level) {
+            const levelKey = getChallengeLevelKey(group.id, level.id);
+            const result = challengeState.results[levelKey];
+            const hintCount = challengeState.hints[levelKey] || 0;
+            const completed = !!challengeState.completed[levelKey];
+            return `
+                <div class="flex flex-wrap items-start justify-between gap-4 mb-4">
+                    <div>
+                        <h3 class="text-2xl font-semibold text-slate-100">${escapeHtml(group.title)}</h3>
+                        <p class="text-sm text-slate-400 mt-2 leading-relaxed">${escapeHtml(group.scenario)}</p>
+                    </div>
+                    ${completed ? `<span class="challenge-mode-pill"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-300"></i>已完成当前小关</span>` : ''}
+                </div>
+                ${renderChallengeProgression(group, level)}
+                <div class="grid grid-cols-1 2xl:grid-cols-[minmax(0,1fr)_340px] gap-4 mt-4">
+                    <div class="space-y-4">
+                        <div class="challenge-card p-4">
+                            <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                                <div>
+                                    <div class="text-xs text-cyan-300">当前小关</div>
+                                    <h4 class="text-lg font-semibold text-slate-100">${escapeHtml(level.title)}</h4>
+                                </div>
+                            </div>
+                            <p class="text-sm text-slate-300 leading-relaxed">${escapeHtml(level.task)}</p>
+                            <div class="flex flex-wrap gap-2 mt-4">
+                                <button type="button" class="primary-cta bg-emerald-600 hover:bg-emerald-500 px-4 py-2 text-sm" onclick="gradeCurrentChallenge()">提交当前小关</button>
+                                <button type="button" class="primary-cta bg-slate-800 hover:bg-slate-700 px-4 py-2 text-sm" onclick="unlockChallengeHint()">解锁提示</button>
+                            </div>
+                        </div>
+                        ${renderChallengePractice(group, level)}
+                        ${renderChallengeResult(result)}
+                    </div>
+                    <div class="space-y-4">
+                        ${renderChallengeHintPanel(level, hintCount)}
+                        ${renderChallengeImagePanel(group)}
+                        ${renderChallengeKnowledgeRadarPanel(group, level)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderChallengeImagePanel(group) {
+            if (!group.image) return '';
+            return `
+                <div class="challenge-card challenge-image-card">
+                    <img src="${escapeHtml(group.image)}" alt="${escapeHtml(group.imageAlt || `${group.title}场景图`)}" loading="lazy">
+                </div>
+            `;
+        }
+
+        function clampKnowledgeScore(value) {
+            return Math.max(0, Math.min(5, Math.round(Number(value) || 0)));
+        }
+
+        function setKnowledgeScore(scores, key, value) {
+            scores[key] = Math.max(clampKnowledgeScore(scores[key]), clampKnowledgeScore(value));
+        }
+
+        function makeEmptyKnowledgeScores() {
+            return Object.fromEntries(challengeKnowledgeAxes.map(axis => [axis.key, 0]));
+        }
+
+        function challengeHasSequentialPort(level) {
+            return getChallengeInputNames(level)
+                .map(name => String(name).toLowerCase())
+                .some(name => /^(clk|clock|rst|reset)$/.test(name));
+        }
+
+        function getChallengeKnowledgeProfile(group, level) {
+            const scores = makeEmptyKnowledgeScores();
+            const titleAndTask = `${level.title || ''} ${level.task || ''}`;
+            const modeTags = {
+                'truth-table': '真值表',
+                'gate-schematic': '原理图',
+                hdl: 'Verilog',
+                fsm: '状态图'
+            };
+
+            if (level.buildMode === 'truth-table') {
+                setKnowledgeScore(scores, 'combo', 5);
+                setKnowledgeScore(scores, 'verify', 2);
+                if (level.practice === 'expression') setKnowledgeScore(scores, 'hdl', 1);
+            } else if (level.buildMode === 'gate-schematic') {
+                setKnowledgeScore(scores, 'gate', 5);
+                setKnowledgeScore(scores, 'combo', 4);
+                setKnowledgeScore(scores, 'verify', 3);
+            } else if (level.buildMode === 'hdl') {
+                setKnowledgeScore(scores, 'hdl', 5);
+                setKnowledgeScore(scores, 'verify', 4);
+                if (challengeHasSequentialPort(level)) {
+                    setKnowledgeScore(scores, 'seq', 5);
+                } else {
+                    setKnowledgeScore(scores, 'combo', 4);
+                }
+            } else if (level.buildMode === 'fsm') {
+                setKnowledgeScore(scores, 'fsm', 5);
+                setKnowledgeScore(scores, 'seq', 4);
+                setKnowledgeScore(scores, 'hdl', 3);
+                setKnowledgeScore(scores, 'verify', 4);
+            }
+
+            if (['voter', 'decoder', 'lock', 'accumulator'].includes(group.id)) {
+                setKnowledgeScore(scores, 'combo', 5);
+            }
+
+            if (['register', 'counter', 'elevator'].includes(group.id) && level.buildMode !== 'gate-schematic') {
+                setKnowledgeScore(scores, 'seq', 5);
+            }
+
+            if (group.id === 'quiz' && /(锁存|复位|寄存|分数|计分|边界保持)/.test(titleAndTask)) {
+                setKnowledgeScore(scores, 'seq', 5);
+            }
+
+            if (group.id === 'accumulator' && /(串行|保存进位|累加)/.test(titleAndTask) && level.buildMode === 'hdl') {
+                setKnowledgeScore(scores, 'seq', 5);
+            }
+
+            if (group.id === 'elevator') {
+                if (level.buildMode === 'fsm') setKnowledgeScore(scores, 'fsm', 5);
+                if (level.buildMode === 'hdl') setKnowledgeScore(scores, 'fsm', 4);
+            }
+
+            const rankedAxes = challengeKnowledgeAxes
+                .map(axis => ({ ...axis, score: clampKnowledgeScore(scores[axis.key]) }))
+                .sort((a, b) => b.score - a.score);
+            const topThree = rankedAxes.slice(0, 3).map(axis => axis.score);
+            const difficulty = Math.max(1, Math.round(topThree.reduce((sum, score) => sum + score, 0) / topThree.length));
+            const tags = [modeTags[level.buildMode], ...rankedAxes.filter(axis => axis.score > 0).map(axis => axis.label)]
+                .filter(Boolean)
+                .filter((tag, index, list) => list.indexOf(tag) === index)
+                .slice(0, 3);
+
+            return {
+                scores: Object.fromEntries(challengeKnowledgeAxes.map(axis => [axis.key, clampKnowledgeScore(scores[axis.key])])),
+                tags,
+                difficulty
+            };
+        }
+
+        function getRadarPoint(index, score, radius = 60) {
+            const angle = -Math.PI / 2 + (Math.PI * 2 * index) / challengeKnowledgeAxes.length;
+            const scaledRadius = radius * clampKnowledgeScore(score) / 5;
+            return {
+                x: 130 + Math.cos(angle) * scaledRadius,
+                y: 96 + Math.sin(angle) * scaledRadius
+            };
+        }
+
+        function formatRadarPoint(point) {
+            return `${point.x.toFixed(1)},${point.y.toFixed(1)}`;
+        }
+
+        function renderChallengeRadarSvg(profile) {
+            const gridRings = [1, 2, 3, 4, 5].map(step => {
+                const points = challengeKnowledgeAxes.map((_, index) => formatRadarPoint(getRadarPoint(index, step, 60))).join(' ');
+                return `<polygon class="challenge-radar-grid" points="${points}"></polygon>`;
+            }).join('');
+            const spokes = challengeKnowledgeAxes.map((axis, index) => {
+                const edge = getRadarPoint(index, 5, 60);
+                return `<line class="challenge-radar-spoke" x1="130" y1="96" x2="${edge.x.toFixed(1)}" y2="${edge.y.toFixed(1)}"></line>`;
+            }).join('');
+            const areaPoints = challengeKnowledgeAxes
+                .map((axis, index) => formatRadarPoint(getRadarPoint(index, profile.scores[axis.key], 60)))
+                .join(' ');
+            const points = challengeKnowledgeAxes.map((axis, index) => {
+                const point = getRadarPoint(index, profile.scores[axis.key], 60);
+                return `<circle class="challenge-radar-point" cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="3"></circle>`;
+            }).join('');
+            const labels = challengeKnowledgeAxes.map((axis, index) => {
+                const labelPoint = getRadarPoint(index, 5, 78);
+                const anchor = labelPoint.x < 95 ? 'end' : (labelPoint.x > 165 ? 'start' : 'middle');
+                return `<text class="challenge-radar-axis" x="${labelPoint.x.toFixed(1)}" y="${labelPoint.y.toFixed(1)}" text-anchor="${anchor}" dominant-baseline="central">${escapeHtml(axis.label)}</text>`;
+            }).join('');
+            return `
+                <svg class="challenge-radar-svg" viewBox="0 0 260 192" role="img" aria-label="本关知识能力雷达图">
+                    ${gridRings}
+                    ${spokes}
+                    <polygon class="challenge-radar-area" points="${areaPoints}"></polygon>
+                    ${points}
+                    ${labels}
+                </svg>
+            `;
+        }
+
+        function renderChallengeKnowledgeRadarPanel(group, level) {
+            const profile = getChallengeKnowledgeProfile(group, level);
+            return `
+                <div class="challenge-card challenge-radar-card" aria-label="当前小关知识雷达">
+                    <div class="challenge-radar-head">
+                        <div>
+                            <div class="challenge-radar-kicker">知识画像</div>
+                            <div class="challenge-radar-title">知识雷达</div>
+                        </div>
+                        <div class="challenge-radar-difficulty">难度 ${profile.difficulty}/5</div>
+                    </div>
+                    ${renderChallengeRadarSvg(profile)}
+                    <div class="challenge-radar-tags">
+                        ${profile.tags.map(tag => `<span class="challenge-radar-tag">${escapeHtml(tag)}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderChallengeProgression(group, activeLevel) {
+            return `
+                <div class="challenge-path">
+                    ${group.levels.map((level, index) => {
+                        const done = !!challengeState.completed[getChallengeLevelKey(group.id, level.id)];
+                        const active = level.id === activeLevel.id;
+                        const statusText = done ? '已通过' : (active ? '当前' : '待完成');
+                        const stepNo = String(index + 1).padStart(2, '0');
+                        return `
+                            <button type="button" class="challenge-path-step ${active ? 'active' : ''} ${done ? 'done' : ''}" onclick="selectChallengeLevel('${group.id}', '${level.id}')">
+                                <div class="challenge-step-head">
+                                    <span class="challenge-step-index">${stepNo}</span>
+                                    <span class="challenge-step-status ${done ? 'done' : ''} ${active ? 'active' : ''}">${statusText}</span>
+                                </div>
+                                <div class="challenge-step-title">${escapeHtml(level.title)}</div>
+                            </button>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        function renderChallengePractice(group, level) {
+            if (level.buildMode === 'gate-schematic') return renderChallengeSchematicPractice(group, level);
+            if (level.buildMode === 'hdl') return renderChallengeHdlPractice(group, level);
+            if (level.buildMode === 'fsm') return renderChallengeFsmPractice(group, level);
+            if (level.buildMode !== 'truth-table') return '';
+            const levelKey = getChallengeLevelKey(group.id, level.id);
+            const practice = getChallengePractice(levelKey);
+            if (level.practice === 'expression') {
+                return `
+                    <div id="challenge-practice-card" class="challenge-card p-4">
+                        <div class="text-sm font-semibold text-slate-200 mb-2">表达式练习</div>
+                        <input id="challenge-expression-${levelKey}" type="text" value="${escapeHtml(practice.expression || '')}" oninput="updateChallengeExpression('${levelKey}', this.value)" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-slate-200 font-mono outline-none focus:border-cyan-500" placeholder="例如：(~A & ~B) | (A & B)">
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <button type="button" class="bg-slate-800 hover:bg-slate-700 px-4 py-3 rounded text-sm text-slate-300 font-mono font-semibold" onclick="insertChallengeExpressionSymbol('${levelKey}', '&')">· (&amp;)</button>
+                            <button type="button" class="bg-slate-800 hover:bg-slate-700 px-4 py-3 rounded text-sm text-slate-300 font-mono font-semibold" onclick="insertChallengeExpressionSymbol('${levelKey}', '|')">+ (|)</button>
+                            <button type="button" class="bg-slate-800 hover:bg-slate-700 px-4 py-3 rounded text-sm text-yellow-400 font-mono font-semibold" onclick="insertChallengeExpressionSymbol('${levelKey}', '~')">‾ (~)</button>
+                            <button type="button" class="bg-slate-800 hover:bg-slate-700 px-4 py-3 rounded text-sm text-slate-300 font-mono font-semibold" onclick="insertChallengeExpressionSymbol('${levelKey}', '^')">⊕ (^)</button>
+                            <button type="button" class="bg-slate-800 hover:bg-slate-700 px-4 py-3 rounded text-sm text-slate-300 font-mono font-semibold" onclick="insertChallengeExpressionSymbol('${levelKey}', '~^')">⊙ (~^)</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const inputs = getChallengeInputNames(level);
+            const outputs = getChallengeOutputNames(level);
+            return `
+                <div id="challenge-practice-card" class="challenge-card p-4 overflow-x-auto">
+                    <div class="text-sm font-semibold text-slate-200 mb-2">真值表练习</div>
+                    <table class="challenge-table">
+                        <thead><tr>${inputs.map(name => `<th>${escapeHtml(name)}</th>`).join('')}${outputs.map(name => `<th>${escapeHtml(name)}</th>`).join('')}</tr></thead>
+                        <tbody>
+                            ${level.tests.map((test, rowIndex) => `
+                                <tr>
+                                    ${inputs.map(name => `<td>${escapeHtml(test.in[name] ?? 0)}</td>`).join('')}
+                                    ${outputs.map(name => `<td><input value="${escapeHtml(practice.rows?.[rowIndex]?.[name] || '')}" oninput="updateChallengePractice('${levelKey}', ${rowIndex}, '${name}', this.value)"></td>`).join('')}
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function renderChallengeFsmPractice(group, level) {
+            const levelKey = getChallengeLevelKey(group.id, level.id);
+            return `
+                <div id="challenge-practice-card" class="challenge-card challenge-fsm-card">
+                    <div class="challenge-fsm-toolbar">
+                        <div>
+                            <div class="text-sm font-semibold text-slate-200">状态图练习</div>
+                            <div class="text-xs text-slate-500 mt-1">当前草稿：${escapeHtml(levelKey)}</div>
+                        </div>
+                        <div class="challenge-fsm-actions">
+                            <button type="button" class="challenge-fsm-action" onclick="addChallengeFsmState()">添加状态圆圈</button>
+                            <button type="button" class="challenge-fsm-action danger" onclick="clearChallengeFsm()">清空</button>
+                        </div>
+                        <div id="challenge-fsm-edit-panel" class="challenge-fsm-edit-panel" style="visibility: hidden;">
+                            <span class="text-xs text-slate-400 font-bold">编辑标签</span>
+                            <input id="challenge-fsm-label-input" class="challenge-fsm-edit-input" spellcheck="false" oninput="updateChallengeFsmLabel(this.value)" placeholder="req / out">
+                        </div>
+                    </div>
+                    <div id="challenge-fsm-surface" class="challenge-fsm-surface bg-grid cursor-default" onpointermove="challengeFsmMouseMove(event)" onpointerdown="challengeFsmCanvasClick(event)" oncontextmenu="return false;">
+                        <svg id="challenge-fsm-svg" class="absolute inset-0 w-full h-full pointer-events-none z-10">
+                            <defs>
+                                <marker id="challenge-fsm-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"></path></marker>
+                                <marker id="challenge-fsm-arrow-selected" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b"></path></marker>
+                            </defs>
+                            <g id="challenge-fsm-wires"></g>
+                            <g id="challenge-fsm-preview"></g>
+                        </svg>
+                    </div>
+                    <div class="challenge-fsm-help">
+                        左键拖拽状态圆圈；右键点击起点状态，再右键/左键点击终点状态创建转移。选中状态或转移线后，在右上角编辑标签；Delete 删除选中项。
+                    </div>
+                    <div id="challenge-fsm-table" class="challenge-fsm-table"></div>
+                </div>
+            `;
+        }
+
+        function cloneChallengeFsmDraft() {
+            return {
+                states: JSON.parse(JSON.stringify(challengeFsmData.states || [])),
+                transitions: JSON.parse(JSON.stringify(challengeFsmData.transitions || [])),
+                idSeed: challengeFsmData.idSeed || 0,
+                transSeed: challengeFsmData.transSeed || 0
+            };
+        }
+
+        function restoreChallengeFsmDraft(draft) {
+            challengeFsmData.states = JSON.parse(JSON.stringify(draft?.states || []));
+            challengeFsmData.transitions = JSON.parse(JSON.stringify(draft?.transitions || []));
+            challengeFsmData.idSeed = Number.isFinite(draft?.idSeed) ? draft.idSeed : challengeFsmData.states.reduce((max, state) => Math.max(max, state.id || 0), 0);
+            challengeFsmData.transSeed = Number.isFinite(draft?.transSeed) ? draft.transSeed : challengeFsmData.transitions.reduce((max, trans) => Math.max(max, trans.id || 0), 0);
+            challengeFsmData.selectedState = null;
+            challengeFsmData.selectedTrans = null;
+            challengeFsmData.pendingStart = null;
+            challengeFsmData.dragObj = null;
+        }
+
+        function initializeChallengeFsmDraft() {
+            restoreChallengeFsmDraft({ states: [], transitions: [], idSeed: 0, transSeed: 0 });
+        }
+
+        function saveActiveChallengeFsmDraft() {
+            if (!activeChallengeFsmKey) return;
+            if (!challengeState.fsmDrafts) challengeState.fsmDrafts = {};
+            const { level } = findChallengeLevelByKey(activeChallengeFsmKey);
+            challengeState.fsmDrafts[activeChallengeFsmKey] = {
+                ...cloneChallengeFsmDraft(),
+                signature: level ? getChallengePortSignature(level) : ''
+            };
+            saveChallengeProgress();
+        }
+
+        function prepareChallengeFsm(group, level, options = {}) {
+            if (!group || !level || level.buildMode !== 'fsm') return;
+            const levelKey = getChallengeLevelKey(group.id, level.id);
+            const signature = getChallengePortSignature(level);
+            if (!options.force && activeChallengeFsmKey === levelKey) return;
+            saveActiveChallengeFsmDraft();
+            if (!challengeState.fsmDrafts) challengeState.fsmDrafts = {};
+            const draft = !options.force ? challengeState.fsmDrafts[levelKey] : null;
+            if (draft && draft.signature === signature) {
+                restoreChallengeFsmDraft(draft);
+            } else {
+                initializeChallengeFsmDraft();
+            }
+            activeChallengeFsmKey = levelKey;
+            challengeState.fsmDrafts[levelKey] = {
+                ...cloneChallengeFsmDraft(),
+                signature
+            };
+            if (options.save !== false) saveChallengeProgress();
+        }
+
+        function persistChallengeFsmDraft() {
+            if (activeTopTabId !== 'tab-challenge' || !activeChallengeFsmKey) return;
+            saveActiveChallengeFsmDraft();
+        }
+
+        function addChallengeFsmState() {
+            const { group, level } = getActiveChallenge();
+            prepareChallengeFsm(group, level);
+            challengeFsmData.idSeed += 1;
+            const surface = document.getElementById('challenge-fsm-surface');
+            const width = surface?.clientWidth || 720;
+            const x = Math.min(width - 80, 150 + (challengeFsmData.idSeed - 1) * 150);
+            const y = 150 + ((challengeFsmData.idSeed - 1) % 2) * 130;
+            challengeFsmData.states.push({
+                id: challengeFsmData.idSeed,
+                label: `S${challengeFsmData.idSeed}`,
+                x: Math.max(80, x),
+                y
+            });
+            saveActiveChallengeFsmDraft();
+            renderChallengeFsm();
+        }
+
+        function clearChallengeFsm() {
+            const { group, level } = getActiveChallenge();
+            prepareChallengeFsm(group, level, { force: true });
+            saveActiveChallengeFsmDraft();
+            renderChallengeFsm();
+            showToast('已清空当前小关状态图', 'info');
+        }
+
+        function renderChallengeFsm() {
+            const surface = document.getElementById('challenge-fsm-surface');
+            if (!surface) return;
+            surface.querySelectorAll('.fsm-state').forEach(el => el.remove());
+            challengeFsmData.states.forEach(state => {
+                const el = document.createElement('div');
+                const isSelected = challengeFsmData.selectedState === state.id;
+                const isPending = challengeFsmData.pendingStart === state.id;
+                el.className = `fsm-state ${isSelected ? 'selected' : ''} ${isPending ? 'pending' : ''}`;
+                el.style.left = `${state.x}px`;
+                el.style.top = `${state.y}px`;
+                el.innerText = state.label;
+                el.onpointerdown = (event) => {
+                    event.stopPropagation();
+                    if (event.button === 0) {
+                        if (challengeFsmData.pendingStart) {
+                            handleChallengeFsmNodeClick(state.id);
+                            return;
+                        }
+                        challengeFsmData.selectedState = state.id;
+                        challengeFsmData.selectedTrans = null;
+                        const rect = surface.getBoundingClientRect();
+                        challengeFsmData.dragObj = {
+                            id: state.id,
+                            offsetX: event.clientX - rect.left - state.x,
+                            offsetY: event.clientY - rect.top - state.y
+                        };
+                        el.setPointerCapture(event.pointerId);
+                        renderChallengeFsm();
+                    } else if (event.button === 2) {
+                        handleChallengeFsmNodeClick(state.id);
+                    }
+                };
+                el.onpointermove = (event) => {
+                    if (challengeFsmData.dragObj?.id !== state.id) return;
+                    const rect = surface.getBoundingClientRect();
+                    state.x = Math.max(44, Math.min(surface.clientWidth - 44, event.clientX - rect.left - challengeFsmData.dragObj.offsetX));
+                    state.y = Math.max(44, Math.min(surface.clientHeight - 44, event.clientY - rect.top - challengeFsmData.dragObj.offsetY));
+                    el.style.left = `${state.x}px`;
+                    el.style.top = `${state.y}px`;
+                    renderChallengeFsmWires();
+                };
+                el.onpointerup = (event) => {
+                    if (event.button === 0 && challengeFsmData.dragObj) {
+                        el.releasePointerCapture(event.pointerId);
+                        challengeFsmData.dragObj = null;
+                        saveActiveChallengeFsmDraft();
+                    }
+                };
+                surface.appendChild(el);
+            });
+            renderChallengeFsmWires();
+            updateChallengeFsmEditPanel();
+            renderChallengeFsmTable();
+        }
+
+        function renderChallengeFsmWires() {
+            const svg = document.getElementById('challenge-fsm-wires');
+            if (!svg) return;
+            svg.innerHTML = '';
+            challengeFsmData.transitions.forEach(trans => {
+                const fromState = challengeFsmData.states.find(state => state.id === trans.from);
+                const toState = challengeFsmData.states.find(state => state.id === trans.to);
+                if (!fromState || !toState) return;
+                const geom = getFsmPath(fromState, toState);
+                const isSelected = challengeFsmData.selectedTrans === trans.id;
+
+                const hit = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                hit.setAttribute('class', 'fsm-trans-hit');
+                hit.setAttribute('d', geom.path);
+                hit.onpointerdown = (event) => {
+                    if (event.button !== 0) return;
+                    event.stopPropagation();
+                    challengeFsmData.selectedTrans = trans.id;
+                    challengeFsmData.selectedState = null;
+                    renderChallengeFsm();
+                };
+                svg.appendChild(hit);
+
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('class', `fsm-trans-path ${isSelected ? 'selected' : ''}`);
+                path.setAttribute('d', geom.path);
+                svg.appendChild(path);
+
+                const textLength = Math.max(28, String(trans.label || '').length * 8);
+                const textBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                textBg.setAttribute('class', 'fsm-label-bg');
+                textBg.setAttribute('x', geom.lx - textLength / 2 - 4);
+                textBg.setAttribute('y', geom.ly - 12);
+                textBg.setAttribute('width', textLength + 8);
+                textBg.setAttribute('height', 18);
+                textBg.setAttribute('rx', 4);
+                svg.appendChild(textBg);
+
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('class', `fsm-label ${isSelected ? 'selected' : ''}`);
+                text.setAttribute('x', geom.lx);
+                text.setAttribute('y', geom.ly + 2);
+                text.textContent = trans.label;
+                svg.appendChild(text);
+            });
+        }
+
+        function handleChallengeFsmNodeClick(stateId) {
+            if (!challengeFsmData.pendingStart) {
+                challengeFsmData.pendingStart = stateId;
+                renderChallengeFsm();
+                return;
+            }
+            challengeFsmData.transSeed += 1;
+            challengeFsmData.transitions.push({
+                id: challengeFsmData.transSeed,
+                from: challengeFsmData.pendingStart,
+                to: stateId,
+                label: '1'
+            });
+            challengeFsmData.pendingStart = null;
+            const preview = document.getElementById('challenge-fsm-preview');
+            if (preview) preview.innerHTML = '';
+            saveActiveChallengeFsmDraft();
+            renderChallengeFsm();
+        }
+
+        function challengeFsmMouseMove(event) {
+            if (!challengeFsmData.pendingStart) return;
+            const surface = document.getElementById('challenge-fsm-surface');
+            const preview = document.getElementById('challenge-fsm-preview');
+            if (!surface || !preview) return;
+            const rect = surface.getBoundingClientRect();
+            const fromState = challengeFsmData.states.find(state => state.id === challengeFsmData.pendingStart);
+            if (!fromState) return;
+            const pointerState = {
+                id: -1,
+                x: event.clientX - rect.left,
+                y: event.clientY - rect.top
+            };
+            const geom = getFsmPath(fromState, pointerState);
+            preview.innerHTML = `<path class="wire-preview" d="${geom.path}"></path>`;
+        }
+
+        function challengeFsmCanvasClick(event) {
+            if (!['challenge-fsm-surface', 'challenge-fsm-svg', 'challenge-fsm-preview'].includes(event.target.id)) return;
+            if (event.button === 0) {
+                challengeFsmData.selectedState = null;
+                challengeFsmData.selectedTrans = null;
+                if (challengeFsmData.pendingStart) {
+                    challengeFsmData.pendingStart = null;
+                    const preview = document.getElementById('challenge-fsm-preview');
+                    if (preview) preview.innerHTML = '';
+                }
+                renderChallengeFsm();
+            } else if (event.button === 2 && challengeFsmData.pendingStart) {
+                challengeFsmData.pendingStart = null;
+                const preview = document.getElementById('challenge-fsm-preview');
+                if (preview) preview.innerHTML = '';
+                renderChallengeFsm();
+            }
+        }
+
+        function updateChallengeFsmEditPanel() {
+            const panel = document.getElementById('challenge-fsm-edit-panel');
+            const input = document.getElementById('challenge-fsm-label-input');
+            if (!panel || !input) return;
+            if (challengeFsmData.selectedState) {
+                const state = challengeFsmData.states.find(item => item.id === challengeFsmData.selectedState);
+                if (state) {
+                    panel.style.visibility = 'visible';
+                    input.value = state.label;
+                    input.placeholder = '状态名';
+                    return;
+                }
+            }
+            if (challengeFsmData.selectedTrans) {
+                const trans = challengeFsmData.transitions.find(item => item.id === challengeFsmData.selectedTrans);
+                if (trans) {
+                    panel.style.visibility = 'visible';
+                    input.value = trans.label;
+                    input.placeholder = '条件/输出';
+                    return;
+                }
+            }
+            panel.style.visibility = 'hidden';
+        }
+
+        function updateChallengeFsmLabel(value) {
+            if (challengeFsmData.selectedState) {
+                const state = challengeFsmData.states.find(item => item.id === challengeFsmData.selectedState);
+                if (state) state.label = value;
+            } else if (challengeFsmData.selectedTrans) {
+                const trans = challengeFsmData.transitions.find(item => item.id === challengeFsmData.selectedTrans);
+                if (trans) trans.label = value;
+            }
+            saveActiveChallengeFsmDraft();
+            renderChallengeFsm();
+        }
+
+        function deleteSelectedChallengeFsmItem() {
+            if (!document.getElementById('challenge-fsm-surface')) return false;
+            if (challengeFsmData.selectedState) {
+                const selectedId = challengeFsmData.selectedState;
+                challengeFsmData.states = challengeFsmData.states.filter(state => state.id !== selectedId);
+                challengeFsmData.transitions = challengeFsmData.transitions.filter(trans => trans.from !== selectedId && trans.to !== selectedId);
+                challengeFsmData.selectedState = null;
+                saveActiveChallengeFsmDraft();
+                renderChallengeFsm();
+                showToast('已删除状态及相关转移');
+                return true;
+            }
+            if (challengeFsmData.selectedTrans) {
+                const selectedId = challengeFsmData.selectedTrans;
+                challengeFsmData.transitions = challengeFsmData.transitions.filter(trans => trans.id !== selectedId);
+                challengeFsmData.selectedTrans = null;
+                saveActiveChallengeFsmDraft();
+                renderChallengeFsm();
+                showToast('已删除转换线');
+                return true;
+            }
+            if (challengeFsmData.pendingStart) {
+                challengeFsmData.pendingStart = null;
+                const preview = document.getElementById('challenge-fsm-preview');
+                if (preview) preview.innerHTML = '';
+                renderChallengeFsm();
+                return true;
+            }
+            return false;
+        }
+
+        function renderChallengeFsmTable() {
+            const table = document.getElementById('challenge-fsm-table');
+            if (!table) return;
+            if (!challengeFsmData.transitions.length) {
+                table.innerHTML = `<div class="p-5 text-xs text-slate-500 text-center">暂无状态转换路径。添加状态后，用右键从起点连到终点。</div>`;
+                return;
+            }
+            let html = `<table class="dcdv-table"><thead><tr><th>当前状态</th><th>转移条件</th><th>下一状态</th><th class="border-l border-slate-600">输出</th></tr></thead><tbody>`;
+            challengeFsmData.transitions.forEach(trans => {
+                const fromState = challengeFsmData.states.find(state => state.id === trans.from);
+                const toState = challengeFsmData.states.find(state => state.id === trans.to);
+                if (!fromState || !toState) return;
+                let condition = trans.label || '';
+                let output = '-';
+                if (condition.includes('/')) {
+                    const parts = condition.split('/');
+                    condition = parts[0].trim();
+                    output = parts.slice(1).join('/').trim();
+                }
+                html += `<tr>
+                    <td class="text-cyan-300 font-bold">${escapeHtml(fromState.label)}</td>
+                    <td class="text-yellow-400">${escapeHtml(condition || '-')}</td>
+                    <td class="text-cyan-300 font-bold">${escapeHtml(toState.label)}</td>
+                    <td class="text-pink-400 font-bold bg-slate-800/30 border-l border-slate-700/50">${escapeHtml(output || '-')}</td>
+                </tr>`;
+            });
+            table.innerHTML = `${html}</tbody></table>`;
+        }
+
+        function getChallengeSignalSpecs(level, direction) {
+            const names = direction === 'input' ? getChallengeInputNames(level) : getChallengeOutputNames(level);
+            return names.map(name => {
+                const values = level.tests.map(test => direction === 'input' ? (test.in?.[name] ?? 0) : (test.out?.[name] ?? 0));
+                return {
+                    name,
+                    direction,
+                    width: inferChallengeSignalWidth(level, name, values)
+                };
+            });
+        }
+
+        function formatChallengeSignalLabel(signal) {
+            return signal.width > 1 ? `${signal.name}[${signal.width - 1}:0]` : signal.name;
+        }
+
+        function formatChallengePortDeclaration(signal, isLast) {
+            const range = signal.width > 1 ? `[${signal.width - 1}:0] ` : '';
+            const keyword = signal.direction === 'input' ? 'input wire' : 'output reg';
+            return `    ${keyword} ${range}${signal.name}${isLast ? '' : ','}`;
+        }
+
+        function formatVerilogZero(width) {
+            return width > 1 ? `${width}'b${'0'.repeat(width)}` : `1'b0`;
+        }
+
+        function buildChallengeHdlStarter(level) {
+            const inputs = getChallengeSignalSpecs(level, 'input');
+            const outputs = getChallengeSignalSpecs(level, 'output');
+            const ports = [...inputs, ...outputs];
+            const portLines = ports.map((signal, index) => formatChallengePortDeclaration(signal, index === ports.length - 1));
+            const hasClock = inputs.some(signal => signal.name === 'clk');
+            const hasReset = inputs.some(signal => signal.name === 'rst');
+            const resetLines = outputs.map(signal => `            ${signal.name} <= ${formatVerilogZero(signal.width)};`);
+            const holdLines = outputs.map(signal => `            ${signal.name} <= ${signal.name};`);
+            const combLines = outputs.map(signal => `        ${signal.name} = ${formatVerilogZero(signal.width)};`);
+
+            if (hasClock) {
+                const sensitivity = hasReset ? 'posedge clk or posedge rst' : 'posedge clk';
+                const resetBlock = hasReset ? [
+                    '        if (rst) begin',
+                    ...(resetLines.length ? resetLines : ['            // TODO: reset']),
+                    '        end else begin',
+                    ...(holdLines.length ? holdLines : ['            // TODO: update']),
+                    '        end'
+                ] : [
+                    ...(holdLines.length ? holdLines : ['        // TODO: update'])
+                ];
+                return [
+                    'module custom_logic(',
+                    ...portLines,
+                    ');',
+                    '',
+                    `    always @(${sensitivity}) begin`,
+                    ...resetBlock,
+                    '    end',
+                    '',
+                    'endmodule'
+                ].join('\n');
+            }
+
+            return [
+                'module custom_logic(',
+                ...portLines,
+                ');',
+                '',
+                '    always @(*) begin',
+                ...(combLines.length ? combLines : ['        // TODO: assign outputs']),
+                '    end',
+                '',
+                'endmodule'
+            ].join('\n');
+        }
+
+        function ensureChallengeHdlDraft(group, level) {
+            const levelKey = getChallengeLevelKey(group.id, level.id);
+            const practice = getChallengePractice(levelKey);
+            if (!Object.prototype.hasOwnProperty.call(practice, 'hdl')) {
+                practice.hdl = buildChallengeHdlStarter(level);
+                saveChallengeProgress();
+            }
+            return practice.hdl || '';
+        }
+
+        function resetChallengeHdl(levelKey) {
+            const { group, level } = findChallengeLevelByKey(levelKey);
+            if (!group || !level || level.buildMode !== 'hdl') return;
+            const practice = getChallengePractice(levelKey);
+            practice.hdl = buildChallengeHdlStarter(level);
+            if (!challengeState.compileResults) challengeState.compileResults = {};
+            delete challengeState.compileResults[levelKey];
+            saveChallengeProgress();
+            renderChallengeTab();
+            renderChallengeStrip();
+            focusChallengePracticeArea();
+            showToast('本小关代码已重置', 'info');
+        }
+
+        function renderChallengeHdlPractice(group, level) {
+            const levelKey = getChallengeLevelKey(group.id, level.id);
+            const code = ensureChallengeHdlDraft(group, level);
+            const inputs = getChallengeSignalSpecs(level, 'input');
+            const outputs = getChallengeSignalSpecs(level, 'output');
+            const compileResult = challengeState.compileResults?.[levelKey];
+            const isChecking = !!compileResult?.pending;
+            return `
+                <div id="challenge-practice-card" class="challenge-card challenge-hdl-card">
+                    <div class="challenge-hdl-toolbar">
+                        <div>
+                            <div class="text-sm font-semibold text-slate-200">Verilog 练习</div>
+                            <div class="text-xs text-slate-500 mt-1">顶层模块建议使用 custom_logic</div>
+                        </div>
+                        <div class="challenge-hdl-actions">
+                            <button id="challenge-compile-btn" type="button" class="challenge-hdl-action primary" onclick="runChallengeCompile()" ${isChecking ? 'disabled' : ''}>${isChecking ? '检查中' : '检查代码'}</button>
+                            <button type="button" class="challenge-hdl-action danger" onclick="resetChallengeHdl('${levelKey}')">重置代码</button>
+                        </div>
+                    </div>
+                    <div class="challenge-hdl-ports">
+                        <span>输入：${inputs.map(formatChallengeSignalLabel).map(escapeHtml).join(' / ') || '-'}</span>
+                        <span>输出：${outputs.map(formatChallengeSignalLabel).map(escapeHtml).join(' / ') || '-'}</span>
+                    </div>
+                    <textarea id="challenge-hdl-${levelKey}" class="challenge-hdl-editor code-font" spellcheck="false" oninput="updateChallengeHdl('${levelKey}', this.value)">${escapeHtml(code)}</textarea>
+                </div>
+                ${renderChallengeCompileResult(compileResult, levelKey)}
+            `;
+        }
+
+        function renderChallengeHintPanel(level, hintCount) {
+            const visibleHints = level.hints.slice(0, hintCount);
+            return `
+                <div class="challenge-card p-4">
+                    <div class="flex items-center justify-between gap-3 mb-3">
+                        <div class="text-sm font-semibold text-slate-200">分级提示</div>
+                        <div class="text-xs text-cyan-300">${Math.min(hintCount, level.hints.length)} / ${level.hints.length}</div>
+                    </div>
+                    ${visibleHints.length ? `<div class="space-y-2">${visibleHints.map((hint, index) => `<div class="rounded-xl border border-slate-700/70 bg-slate-950/50 p-3 text-xs text-slate-300 leading-relaxed"><span class="text-cyan-300">提示 ${index + 1}：</span>${escapeHtml(hint)}</div>`).join('')}</div>` : `<div class="text-xs text-slate-500 leading-relaxed">先自己尝试。需要帮助时点击“解锁提示”，最后一级才会给出参考实现。</div>`}
+                    ${hintCount >= level.hints.length ? `<div class="mt-3 rounded-xl border border-emerald-700/40 bg-emerald-900/10 p-3 text-xs text-emerald-100 leading-relaxed"><span class="text-emerald-300">参考：</span>${escapeHtml(level.reference || '本关暂无参考实现。')}</div>` : ''}
+                </div>
+            `;
+        }
+
+        function renderChallengeResult(result) {
+            if (!result) return `<div class="challenge-result text-xs text-slate-500">还没有提交记录。</div>`;
+            const statusClass = result.ok ? 'pass' : 'fail';
+            return `
+                <div class="challenge-result ${statusClass}">
+                    <div class="text-sm font-semibold ${result.ok ? 'text-emerald-200' : 'text-red-200'}">${result.ok ? '通过' : '未通过'}</div>
+                    <div class="text-xs text-slate-300 mt-2 whitespace-pre-wrap leading-relaxed">${escapeHtml(result.message || '')}</div>
+                </div>
+            `;
+        }
+
+        function renderChallengeCompileResult(result, levelKey = '') {
+            const idAttr = levelKey ? ` id="challenge-compile-result-${escapeHtml(levelKey)}"` : '';
+            if (!result) return `<div${idAttr} class="challenge-result text-xs text-slate-500">还没有编译检查记录。</div>`;
+            const statusClass = result.pending || result.stale ? 'pending' : (result.ok ? 'pass' : 'fail');
+            const title = result.pending ? '正在检查' : (result.stale ? '待重新检查' : (result.ok ? '编译通过' : '编译未通过'));
+            const titleClass = result.pending || result.stale ? 'text-amber-100' : (result.ok ? 'text-emerald-200' : 'text-red-200');
+            return `
+                <div${idAttr} class="challenge-result ${statusClass}">
+                    <div class="text-sm font-semibold ${titleClass}">${title}</div>
+                    <div class="text-xs text-slate-300 mt-2 whitespace-pre-wrap leading-relaxed">${escapeHtml(result.message || '')}</div>
+                </div>
+            `;
+        }
+
+        function getPreferredChallengeTopModule(code) {
+            return /\bmodule\s+custom_logic\b/.test(code || '') ? 'custom_logic' : undefined;
+        }
+
+        function getChallengeSimulationTopModule(levelKey, code) {
+            const compileResult = challengeState.compileResults?.[levelKey];
+            if (compileResult?.ok && !compileResult.stale && compileResult.selectedTop) return compileResult.selectedTop;
+            return getPreferredChallengeTopModule(code);
+        }
+
+        function validateChallengeCompiledPorts(level, ports = []) {
+            const portMap = new Map((ports || []).map(port => [port.name, port]));
+            const errors = [];
+            const suggestPortRename = (expected, direction) => {
+                const candidates = (ports || []).filter(port => {
+                    const sameDirection = direction === 'input' ? port.direction === 'input' : port.direction !== 'input';
+                    return sameDirection && (port.width || 1) === expected.width && port.name !== expected.name;
+                });
+                if (!candidates.length) return '';
+                return `。检测到 ${direction === 'input' ? '输入' : '输出'}端口 ${candidates[0].name}，如果它就是本关端口，请改名为 ${expected.name}`;
+            };
+            getChallengeSignalSpecs(level, 'input').forEach(expected => {
+                const port = portMap.get(expected.name);
+                if (!port) {
+                    errors.push(`缺少输入端口 ${formatChallengeSignalLabel(expected)}${suggestPortRename(expected, 'input')}`);
+                    return;
+                }
+                if (port.direction !== 'input') errors.push(`${expected.name} 应声明为 input。`);
+                if ((port.width || 1) !== expected.width) errors.push(`${expected.name} 位宽应为 ${expected.width}，当前为 ${port.width || 1}。`);
+            });
+            getChallengeSignalSpecs(level, 'output').forEach(expected => {
+                const port = portMap.get(expected.name);
+                if (!port) {
+                    errors.push(`缺少输出端口 ${formatChallengeSignalLabel(expected)}${suggestPortRename(expected, 'output')}`);
+                    return;
+                }
+                if (port.direction === 'input') errors.push(`${expected.name} 应声明为 output。`);
+                if ((port.width || 1) !== expected.width) errors.push(`${expected.name} 位宽应为 ${expected.width}，当前为 ${port.width || 1}。`);
+            });
+            return errors;
+        }
+
+        function summarizeChallengeCompileSuccess(result, level) {
+            const inputCount = getChallengeInputNames(level).length;
+            const outputCount = getChallengeOutputNames(level).length;
+            const warnings = (result.warnings || []).filter(Boolean);
+            const warningText = warnings.length ? `\n\n警告：\n${warnings.join('\n')}` : '';
+            return `编译通过。\ntop=${result.selectedTop || '未确定'}\n输入 ${inputCount} 个，输出 ${outputCount} 个。${warningText}`;
+        }
+
+        function buildChallengeCompileOutcome(result, level) {
+            const portErrors = result?.ok ? validateChallengeCompiledPorts(level, result.ports || []) : [];
+            const ok = !!result?.ok && !!result.selectedTop && portErrors.length === 0;
+            let message = '';
+            if (ok) {
+                message = summarizeChallengeCompileSuccess(result, level);
+            } else if (result?.ok && !result.selectedTop) {
+                const candidates = (result.moduleCandidates || []).join('、') || '未检测到';
+                message = `语法检查通过，但无法确定唯一顶层模块。\n候选模块：${candidates}\n建议把本关顶层模块命名为 custom_logic。`;
+            } else if (result?.ok && portErrors.length) {
+                message = `编译通过，但端口和本关要求不一致：\n${portErrors.join('\n')}`;
+            } else {
+                message = (result?.errors || []).join('\n') || result?.compilerLog || '编译失败。';
+            }
+            return { ok, message };
+        }
+
+        async function compileChallengeHdl(level, key, code) {
+            const result = await callLocalApi('/api/verilog/compile', {
+                method: 'POST',
+                body: {
+                    code,
+                    topModule: getPreferredChallengeTopModule(code)
+                }
+            });
+            const outcome = buildChallengeCompileOutcome(result, level);
+            if (!challengeState.compileResults) challengeState.compileResults = {};
+            challengeState.compileResults[key] = {
+                ...outcome,
+                selectedTop: result?.selectedTop || '',
+                sourceHash: result?.sourceHash || '',
+                ports: result?.ports || [],
+                moduleCandidates: result?.moduleCandidates || []
+            };
+            return {
+                ...outcome,
+                selectedTop: result?.selectedTop || ''
+            };
+        }
+
+        async function runChallengeCompile() {
+            const { group, level } = getActiveChallenge();
+            if (!group || !level || level.buildMode !== 'hdl') return;
+            const key = getChallengeLevelKey(group.id, level.id);
+            let code = '';
+            try {
+                code = getChallengeSourceCode(group, level);
+            } catch (error) {
+                if (!challengeState.compileResults) challengeState.compileResults = {};
+                challengeState.compileResults[key] = { ok: false, message: error.message };
+                saveChallengeProgress();
+                renderChallengeTab();
+                showToast('请先填写代码', 'info');
+                return;
+            }
+
+            if (!challengeState.compileResults) challengeState.compileResults = {};
+            challengeState.compileResults[key] = { ok: false, pending: true, message: '正在调用本地 iverilog 做真实编译检查，请稍候...' };
+            saveChallengeProgress();
+            renderChallengeTab();
+
+            try {
+                const outcome = await compileChallengeHdl(level, key, code);
+                showToast(outcome.ok ? '编译检查通过' : '编译检查未通过', outcome.ok ? 'success' : 'error');
+            } catch (error) {
+                challengeState.compileResults[key] = {
+                    ok: false,
+                    message: error.message || '无法连接本地编译后端。'
+                };
+                showToast('本地后端不可用', 'error');
+            }
+            saveChallengeProgress();
+            renderChallengeTab();
+            renderChallengeStrip();
+        }
+
+        function selectChallengeGroup(groupId) {
+            saveActiveChallengeSchematicDraft();
+            saveActiveChallengeFsmDraft();
+            const group = findChallengeGroup(groupId);
+            challengeState.activeGroupId = group.id;
+            challengeState.activeLevelId = group.levels[0].id;
+            if (group.levels[0]?.buildMode !== 'gate-schematic') activeChallengeSchematicKey = null;
+            if (group.levels[0]?.buildMode !== 'fsm') activeChallengeFsmKey = null;
+            saveChallengeProgress();
+            renderChallengeTab();
+            renderChallengeStrip();
+        }
+
+        function selectChallengeLevel(groupId, levelId) {
+            saveActiveChallengeSchematicDraft();
+            saveActiveChallengeFsmDraft();
+            const found = findChallengeLevel(groupId, levelId);
+            challengeState.activeGroupId = found.group.id;
+            challengeState.activeLevelId = found.level.id;
+            if (found.level.buildMode !== 'gate-schematic') activeChallengeSchematicKey = null;
+            if (found.level.buildMode !== 'fsm') activeChallengeFsmKey = null;
+            saveChallengeProgress();
+            renderChallengeTab();
+            renderChallengeStrip();
+        }
+
+        function startChallenge(groupId, levelId) {
+            selectChallengeLevel(groupId, levelId);
+            const { group, level } = getActiveChallenge();
+            if (level.buildMode === 'truth-table') {
+                focusChallengePracticeArea();
+                showToast(level.practice === 'expression' ? '请在表达式练习框中完成本关' : '请在真值表练习区完成本关', 'info');
+                return;
+            }
+            if (level.buildMode === 'gate-schematic') {
+                switchTab('tab-challenge');
+                prepareChallengeSchematic(group, level);
+                renderChallengeTab();
+                focusChallengePracticeArea();
+                showToast('输入输出已固定，请添加逻辑门并连线', 'info');
+                return;
+            }
+            if (level.buildMode === 'fsm') {
+                switchTab('tab-challenge');
+                renderChallengeTab();
+                focusChallengePracticeArea();
+                showToast('请在当前小关中绘制状态图', 'info');
+                return;
+            }
+            if (level.buildMode === 'hdl') {
+                switchTab('tab-challenge');
+                renderChallengeTab();
+                focusChallengePracticeArea();
+                showToast('请在当前小关中填写 Verilog 代码', 'info');
+                return;
+            }
+            switchTab('tab-challenge');
+        }
+
+        function focusChallengePracticeArea() {
+            requestAnimationFrame(() => {
+                const card = document.getElementById('challenge-practice-card');
+                if (!card) return;
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                card.classList.add('focus-pulse');
+                const input = card.querySelector('input, textarea, select');
+                if (input) input.focus({ preventScroll: true });
+                setTimeout(() => card.classList.remove('focus-pulse'), 1200);
+            });
+        }
+
+        function unlockChallengeHint() {
+            const { group, level } = getActiveChallenge();
+            const key = getChallengeLevelKey(group.id, level.id);
+            challengeState.hints[key] = Math.min((challengeState.hints[key] || 0) + 1, level.hints.length);
+            saveChallengeProgress();
+            renderChallengeTab();
+            renderChallengeStrip();
+        }
+
+        function renderChallengeStrip() {
+            const strip = document.getElementById('challenge-strip');
+            if (!strip) return;
+            const { group, level } = getActiveChallenge();
+            const completed = countCompletedChallenges();
+            const total = getChallengeTotalLevels();
+            strip.classList.toggle('hidden', !group || !level);
+            strip.innerHTML = `
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <div class="text-[10px] uppercase tracking-[0.2em] text-cyan-300">当前闯关</div>
+                        <div class="text-sm text-slate-200 font-semibold">${escapeHtml(group.title)} · ${escapeHtml(level.title)}</div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                        <span>${completed}/${total} 已完成</span>
+                        <button type="button" class="workflow-dismiss" onclick="switchTab('tab-challenge')">打开闯关页</button>
+                        <button type="button" class="workflow-dismiss" onclick="gradeCurrentChallenge()">提交</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getChallengeInputNames(level) {
+            return [...new Set((level.tests || []).flatMap(test => Object.keys(test.in || {})))];
+        }
+
+        function getChallengeOutputNames(level) {
+            return [...new Set((level.tests || []).flatMap(test => Object.keys(test.out || {})))];
+        }
+
+        function getChallengePortSignature(level) {
+            return JSON.stringify({
+                inputs: getChallengeInputNames(level),
+                outputs: getChallengeOutputNames(level)
+            });
+        }
+
+        function cloneSchematicDraft() {
+            return {
+                components: JSON.parse(JSON.stringify(schState.components || [])),
+                wires: JSON.parse(JSON.stringify(schState.wires || [])),
+                idSeed: schState.idSeed || 0,
+                wireSeed: schState.wireSeed || 0,
+                viewport: {
+                    x: schState.viewport?.x ?? 80,
+                    y: schState.viewport?.y ?? 40,
+                    scale: schState.viewport?.scale ?? 1,
+                    minScale: schState.viewport?.minScale ?? 0.35,
+                    maxScale: schState.viewport?.maxScale ?? 2.4,
+                    pan: null
+                }
+            };
+        }
+
+        function restoreSchematicDraft(draft) {
+            schState.components = JSON.parse(JSON.stringify(draft?.components || []));
+            schState.wires = JSON.parse(JSON.stringify(draft?.wires || []));
+            schState.idSeed = Number.isFinite(draft?.idSeed) ? draft.idSeed : schState.components.reduce((max, comp) => Math.max(max, comp.id || 0), 0);
+            schState.wireSeed = Number.isFinite(draft?.wireSeed) ? draft.wireSeed : schState.wires.reduce((max, wire) => Math.max(max, wire.id || 0), 0);
+            schState.selectedComp = null;
+            schState.selectedWire = null;
+            schState.pendingPin = null;
+            schState.dragObj = null;
+            schState.renamingComp = null;
+            schState.viewport = {
+                ...schState.viewport,
+                ...(draft?.viewport || {}),
+                pan: null
+            };
+        }
+
+        function saveActiveChallengeSchematicDraft() {
+            if (!activeChallengeSchematicKey) return;
+            if (!challengeState.schematicDrafts) challengeState.schematicDrafts = {};
+            const { level } = findChallengeLevelByKey(activeChallengeSchematicKey);
+            challengeState.schematicDrafts[activeChallengeSchematicKey] = {
+                ...cloneSchematicDraft(),
+                signature: level ? getChallengePortSignature(level) : ''
+            };
+            saveChallengeProgress();
+        }
+
+        function persistChallengeSchematicDraft() {
+            if (activeTopTabId !== 'tab-challenge' || !activeChallengeSchematicKey) return;
+            saveActiveChallengeSchematicDraft();
+        }
+
+        function hasChallengeFixedPorts(level) {
+            const inputs = getChallengeInputNames(level);
+            const outputs = getChallengeOutputNames(level);
+            const inputNames = new Set(schState.components.filter(comp => comp.type === 'IN').map(comp => comp.label));
+            const outputNames = new Set(schState.components.filter(comp => comp.type === 'OUT').map(comp => comp.label));
+            return inputs.every(name => inputNames.has(name)) && outputs.every(name => outputNames.has(name));
+        }
+
+        function initializeChallengeSchematicPorts(level) {
+            schState.components = [];
+            schState.wires = [];
+            schState.idSeed = 0;
+            schState.wireSeed = 0;
+            schState.selectedComp = null;
+            schState.selectedWire = null;
+            schState.pendingPin = null;
+            schState.dragObj = null;
+            schState.renamingComp = null;
+            const inputs = getChallengeInputNames(level);
+            const outputs = getChallengeOutputNames(level);
+            const maxCount = Math.max(inputs.length, outputs.length, 1);
+            const spacing = Math.max(46, Math.min(64, 360 / Math.max(maxCount - 1, 1)));
+            const startY = Math.max(48, 220 - ((maxCount - 1) * spacing) / 2);
+            inputs.forEach((name, index) => {
+                createSchematicComponent('IN', name, 44, startY + index * spacing, {
+                    locked: true,
+                    challengePort: true
+                });
+            });
+            outputs.forEach((name, index) => {
+                createSchematicComponent('OUT', name, 780, startY + index * spacing, {
+                    locked: true,
+                    challengePort: true
+                });
+            });
+            schState.viewport = { x: 40, y: 18, scale: 1, minScale: 0.35, maxScale: 2.4, pan: null };
+        }
+
+        function prepareChallengeSchematic(group, level, options = {}) {
+            if (!group || !level || level.buildMode !== 'gate-schematic') return;
+            const levelKey = getChallengeLevelKey(group.id, level.id);
+            const signature = getChallengePortSignature(level);
+            if (!options.force && activeChallengeSchematicKey === levelKey && hasChallengeFixedPorts(level)) return;
+            saveActiveChallengeSchematicDraft();
+            if (!challengeState.schematicDrafts) challengeState.schematicDrafts = {};
+            const draft = !options.force ? challengeState.schematicDrafts[levelKey] : null;
+            if (draft && draft.signature === signature) {
+                restoreSchematicDraft(draft);
+            } else {
+                initializeChallengeSchematicPorts(level);
+            }
+            activeChallengeSchematicKey = levelKey;
+            challengeState.schematicDrafts[levelKey] = {
+                ...cloneSchematicDraft(),
+                signature
+            };
+            if (options.save !== false) saveChallengeProgress();
+        }
+
+        function resetChallengeCurrentSchematic() {
+            const { group, level } = getActiveChallenge();
+            if (!group || !level || level.buildMode !== 'gate-schematic') return;
+            prepareChallengeSchematic(group, level, { force: true });
+            renderSch();
+            requestAnimationFrame(() => frameViewportWithPadding('sch', { left: 56, right: 56, top: 34, bottom: 34 }));
+            showToast('本小关电路已重置', 'info');
+        }
+
+        function addChallengeGate(type) {
+            const { group, level } = getActiveChallenge();
+            if (!group || !level || level.buildMode !== 'gate-schematic') return;
+            prepareChallengeSchematic(group, level, { save: false });
+            const gateCount = schState.components.filter(comp => !['IN', 'OUT'].includes(comp.type)).length;
+            const x = 260 + (gateCount % 4) * 92;
+            const y = 72 + Math.floor(gateCount / 4) * 72;
+            createSchematicComponent(type, type, x, y);
+            schState.selectedComp = schState.idSeed;
+            schState.selectedWire = null;
+            renderSch();
+            persistChallengeSchematicDraft();
+        }
+
+        function renderChallengeSchematicPractice(group, level) {
+            const inputs = getChallengeInputNames(level);
+            const outputs = getChallengeOutputNames(level);
+            return `
+                <div id="challenge-practice-card" class="challenge-card challenge-schematic-card">
+                    <div class="challenge-schematic-toolbar">
+                        <div class="challenge-schematic-tools" aria-label="逻辑门工具">
+                            ${['NOT','AND','OR','XOR','XNOR'].map(type => `<button type="button" class="challenge-gate-btn" onclick="addChallengeGate('${type}')">${type}</button>`).join('')}
+                        </div>
+                        <div class="challenge-schematic-actions">
+                            <button type="button" class="challenge-schematic-action" onclick="deleteSelectedSchematicItem()">删除所选</button>
+                            <button type="button" class="challenge-schematic-action danger" onclick="resetChallengeCurrentSchematic()">重置本小关电路</button>
+                        </div>
+                    </div>
+                    <div class="challenge-fixed-ports">
+                        <span>输入：${inputs.map(escapeHtml).join(' / ') || '-'}</span>
+                        <span>输出：${outputs.map(escapeHtml).join(' / ') || '-'}</span>
+                    </div>
+                    <div id="challenge-sch-surface" class="challenge-schematic-surface relative bg-grid overflow-hidden cursor-default" style="background-size: 20px 20px;" onpointermove="schMouseMove(event)" onpointerdown="schCanvasClick(event)" onwheel="schWheel(event)" oncontextmenu="return false;">
+                        <div id="challenge-sch-viewport" class="canvas-world">
+                            <svg id="challenge-sch-wires" class="absolute inset-0 w-full h-full pointer-events-none"></svg>
+                            <svg id="challenge-sch-preview" class="absolute inset-0 w-full h-full pointer-events-none z-10"></svg>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function normalizeChallengeValue(value, width = 1) {
+            const text = String(value ?? '').trim();
+            if (width <= 1) return (text === '1' || value === 1) ? '1' : '0';
+            if (/^[01]+$/.test(text)) return text.padStart(width, '0').slice(-width);
+            try {
+                if (/^0x/i.test(text)) return BigInt(text).toString(2).padStart(width, '0').slice(-width);
+                if (/^\d+$/.test(text)) return BigInt(text).toString(2).padStart(width, '0').slice(-width);
+            } catch (error) {}
+            return text;
+        }
+
+        function inferChallengeSignalWidth(level, name, values) {
+            if (level.widths?.[name]) return level.widths[name];
+            const maxStringWidth = values.reduce((max, value) => {
+                const text = String(value ?? '');
+                return /^[01]+$/.test(text) ? Math.max(max, text.length) : max;
+            }, 1);
+            return Math.max(1, maxStringWidth);
+        }
+
+        function buildChallengeSignals(level) {
+            const inputs = getChallengeInputNames(level);
+            return inputs.map(name => {
+                const values = level.tests.map(test => test.in[name] ?? 0);
+                const width = inferChallengeSignalWidth(level, name, values);
+                return { name, kind: 'in', width, radix: 'bin', values };
+            });
+        }
+
+        function compareChallengeOutputs(level, outputs) {
+            const outputMap = new Map((outputs || []).map(output => [output.name, output]));
+            const mismatches = [];
+            level.tests.forEach((test, rowIndex) => {
+                Object.entries(test.out || {}).forEach(([name, expected]) => {
+                    const signal = outputMap.get(name);
+                    if (!signal) {
+                        mismatches.push(`缺少输出端口 ${name}`);
+                        return;
+                    }
+                    const width = signal.width || level.widths?.[name] || 1;
+                    const actual = normalizeChallengeValue(signal.values?.[rowIndex], width);
+                    const want = normalizeChallengeValue(expected, width);
+                    if (actual !== want) {
+                        const inputText = Object.entries(test.in || {}).map(([k, v]) => `${k}=${v}`).join(', ');
+                        mismatches.push(`第 ${rowIndex + 1} 组输入(${inputText})：${name} 应为 ${want}，实际为 ${actual}`);
+                    }
+                });
+            });
+            return mismatches;
+        }
+
+        function compareGateSchematicOutputsLocally(level) {
+            const mismatches = [];
+            (level.tests || []).forEach((test, rowIndex) => {
+                const solved = solveSchematic(test.in || {});
+                Object.entries(test.out || {}).forEach(([name, expected]) => {
+                    const actual = normalizeChallengeValue(solved.outVals?.[name]);
+                    const want = normalizeChallengeValue(expected);
+                    if (actual !== want) {
+                        const inputText = Object.entries(test.in || {}).map(([k, v]) => `${k}=${v}`).join(', ');
+                        mismatches.push(`第 ${rowIndex + 1} 组输入(${inputText})：${name} 应为 ${want}，实际为 ${actual}`);
+                    }
+                });
+            });
+            return mismatches;
+        }
+
+        function gradeTruthTableChallenge(group, level) {
+            const key = getChallengeLevelKey(group.id, level.id);
+            const practice = getChallengePractice(key);
+            const mismatches = [];
+            if (level.practice === 'expression') {
+                const expr = (practice.expression || '').trim();
+                if (!expr) mismatches.push('请先输入逻辑表达式。');
+                else {
+                    level.tests.forEach((test, rowIndex) => {
+                        const outputName = Object.keys(test.out || {})[0];
+                        const actual = evaluateLogicExpr(expr, test.in) ? '1' : '0';
+                        const want = normalizeChallengeValue(test.out[outputName]);
+                        if (actual !== want) mismatches.push(`第 ${rowIndex + 1} 行：${outputName} 应为 ${want}，表达式得到 ${actual}`);
+                    });
+                }
+            } else {
+                const outputs = getChallengeOutputNames(level);
+                level.tests.forEach((test, rowIndex) => {
+                    outputs.forEach(name => {
+                        const actual = normalizeChallengeValue(practice.rows?.[rowIndex]?.[name]);
+                        const want = normalizeChallengeValue(test.out?.[name]);
+                        if (actual !== want) mismatches.push(`第 ${rowIndex + 1} 行 ${name} 应为 ${want}。`);
+                    });
+                });
+            }
+            const ok = mismatches.length === 0;
+            challengeState.results[key] = {
+                ok,
+                message: ok ? '真值表/表达式正确，可以进入下一小关。' : mismatches.slice(0, 6).join('\n')
+            };
+            if (ok) challengeState.completed[key] = true;
+            saveChallengeProgress();
+            renderChallengeTab();
+            renderChallengeStrip();
+            showToast(ok ? '小关通过' : '结果还不对', ok ? 'success' : 'error');
+        }
+
+        function getChallengeSourceCode(group, level) {
+            if (level.buildMode === 'gate-schematic') {
+                prepareChallengeSchematic(group, level);
+                const inputs = schState.components.filter(c => c.type === 'IN');
+                const outputs = schState.components.filter(c => c.type === 'OUT');
+                if (!inputs.length || !outputs.length || !hasChallengeFixedPorts(level)) throw new Error('固定输入输出没有加载成功，请重新打开本小关。');
+                return generateSchStructuralVerilog();
+            }
+            if (level.buildMode === 'fsm') {
+                prepareChallengeFsm(group, level);
+                if (!challengeFsmData.states.length || !challengeFsmData.transitions.length) throw new Error('请先在当前小关中绘制状态和转移。');
+                return generateFsmBehavioralVerilogFromData(challengeFsmData);
+            }
+            if (level.buildMode === 'hdl') {
+                const key = getChallengeLevelKey(group.id, level.id);
+                const code = (getChallengePractice(key).hdl || '').trim();
+                if (!code) throw new Error('请先在当前小关中填写 Verilog 代码。');
+                return code;
+            }
+            const code = getVerilogEditorCode().trim();
+            if (!code) throw new Error('请先输入 Verilog 代码。');
+            return code;
+        }
+
+        async function gradeCurrentChallenge() {
+            const { group, level } = getActiveChallenge();
+            if (!group || !level) return;
+            if (level.buildMode === 'truth-table') {
+                gradeTruthTableChallenge(group, level);
+                return;
+            }
+
+            const key = getChallengeLevelKey(group.id, level.id);
+            let code = '';
+            try {
+                code = getChallengeSourceCode(group, level);
+            } catch (error) {
+                challengeState.results[key] = { ok: false, message: error.message };
+                saveChallengeProgress();
+                renderChallengeTab();
+                renderChallengeStrip();
+                showToast('请先完成练习区内容', 'info');
+                return;
+            }
+
+            challengeState.results[key] = { ok: false, message: '正在编译并运行测试向量...' };
+            saveChallengeProgress();
+            renderChallengeTab();
+
+            try {
+                await refreshBackendHealth();
+                let topModule = undefined;
+                if (level.buildMode === 'hdl') {
+                    const compileOutcome = await compileChallengeHdl(level, key, code);
+                    if (!compileOutcome.ok) {
+                        challengeState.results[key] = { ok: false, message: compileOutcome.message };
+                        saveChallengeProgress();
+                        renderChallengeTab();
+                        renderChallengeStrip();
+                        showToast('请先修正代码', 'error');
+                        return;
+                    }
+                    topModule = compileOutcome.selectedTop || getChallengeSimulationTopModule(key, code);
+                }
+                const result = await callLocalApi('/api/verilog/simulate', {
+                    method: 'POST',
+                    body: {
+                        code,
+                        topModule,
+                        stepNs: 10,
+                        signals: buildChallengeSignals(level)
+                    }
+                });
+                if (!result?.ok) {
+                    const localMismatches = level.buildMode === 'gate-schematic' ? compareGateSchematicOutputsLocally(level) : ['skip'];
+                    if (level.buildMode === 'gate-schematic' && localMismatches.length === 0) {
+                        challengeState.results[key] = { ok: true, message: '逻辑行为测试通过，可以进入下一小关。' };
+                        challengeState.completed[key] = true;
+                    } else {
+                        const errors = (result.errors || []).join('\n') || result.compilerLog || result.runtimeLog || '编译或仿真失败。';
+                        challengeState.results[key] = { ok: false, message: errors };
+                    }
+                } else {
+                    const mismatches = compareChallengeOutputs(level, result.outputs || []);
+                    const localMismatches = (mismatches.length && level.buildMode === 'gate-schematic') ? compareGateSchematicOutputsLocally(level) : mismatches;
+                    const ok = mismatches.length === 0 || (level.buildMode === 'gate-schematic' && localMismatches.length === 0);
+                    challengeState.results[key] = {
+                        ok,
+                        message: ok ? '编译和核心行为测试均通过。' : localMismatches.slice(0, 8).join('\n')
+                    };
+                    if (ok) challengeState.completed[key] = true;
+                }
+            } catch (error) {
+                challengeState.results[key] = { ok: false, message: error.message || '无法连接本地后端。' };
+            }
+            saveChallengeProgress();
+            renderChallengeTab();
+            renderChallengeStrip();
+            showToast(challengeState.results[key].ok ? '小关通过' : '小关未通过', challengeState.results[key].ok ? 'success' : 'error');
+        }
 
         function readUiBool(key, fallback = false) {
             try {
@@ -2294,6 +4674,7 @@
             if (activeTopTabId === 'tab-define') return 'define';
             if (activeTopTabId === 'tab-verilog') return compiledDesign.compileOk ? 'compile' : 'generate';
             if (activeTopTabId === 'tab-wave' || activeTopTabId === 'tab-mixed') return 'simulate';
+            if (activeTopTabId === 'tab-challenge') return 'define';
             return 'define';
         }
 
@@ -2478,24 +4859,9 @@
             updateWaveBlockingHint();
         }
 
-        const DCDV_FC_API_BASE = 'https://dcdv-online-beydonrfai.cn-hangzhou.fcapp.run';
-
-        function getDcdvApiBase() {
-            const override = String(window.DCDV_API_BASE || '').trim().replace(/\/+$/, '');
-            if (override) return override;
-
-            const host = window.location.hostname.toLowerCase();
-            if (host === 'miraitowa73.github.io') return DCDV_FC_API_BASE;
-            return '';
-        }
-
-        function resolveDcdvApiUrl(endpoint) {
-            return `${getDcdvApiBase()}${endpoint}`;
-        }
-
         async function callLocalApi(endpoint, options = {}) {
             const { method = 'GET', body } = options;
-            const response = await fetch(resolveDcdvApiUrl(endpoint), {
+            const response = await fetch(endpoint, {
                 method,
                 headers: body ? { 'Content-Type': 'application/json' } : undefined,
                 body: body ? JSON.stringify(body) : undefined
@@ -2720,6 +5086,8 @@
             fitViewport('sch');
             document.getElementById('verilog-editor')?.addEventListener('input', () => invalidateCompiledDesign('源码已修改，请重新编译。'));
             renderCompileConsole([]);
+            renderChallengeTab();
+            renderChallengeStrip();
             updateWorkflowBar();
             updateWaveBlockingHint();
             refreshBackendHealth();
@@ -2776,16 +5144,22 @@
                 .replace(/[｜]/g, '|')
                 .replace(/[！¬]/g, '~')
                 .replace(/[·⋅×]/g, '&')
-                .replace(/⊕/g, '^');
+                .replace(/⊕/g, '^')
+                .replace(/[⊙⨀]/g, '~^')
+                .replace(/\s*xnor\s*/gi, '~^')
+                .replace(/\s*同或\s*/g, '~^')
+                .replace(/\^~/g, '~^');
         }
 
         function formatLogicExpressionForVerilog(expr) {
             return normalizeLogicExpressionText(expr || '0')
                 .replace(/\+/g, '|')
                 .replace(/\s+/g, '')
+                .replace(/~\^/g, ' @XNOR@ ')
                 .replace(/&/g, ' & ')
                 .replace(/\|/g, ' | ')
                 .replace(/\^/g, ' ^ ')
+                .replace(/@XNOR@/g, '~^')
                 .replace(/~/g, '~')
                 .replace(/\(\s+/g, '(')
                 .replace(/\s+\)/g, ')');
@@ -2822,6 +5196,7 @@
         function logicExpressionToJs(expr) {
             return normalizeLogicExpressionText(expr || '0')
                 .replace(/\+/g, '|')
+                .replace(/~\^/g, '===')
                 .replace(/~/g, '!')
                 .replace(/&/g, '&&')
                 .replace(/\|/g, '||')
@@ -2839,18 +5214,36 @@
             if(!val.trim()) { d.innerHTML = '<span class="text-slate-600">Y = ...</span>'; updateRightPanelTable(); return; }
             const parsed = parseLogicExpressionInput(val);
             let h = `<span class="text-yellow-400 font-bold mr-4">${escapeHtml(parsed.outputName)} =</span>`;
-            (parsed.expression.match(/~[A-Za-z_][A-Za-z0-9_]*|[A-Za-z_][A-Za-z0-9_]*|[&|+^()]/g)||[]).forEach(t => {
-                if(t.startsWith('~')) h += `<span style="text-decoration:overline;" class="text-cyan-400 mx-1">${escapeHtml(t.substring(1))}</span>`;
+            (parsed.expression.match(/~\^|~[A-Za-z_][A-Za-z0-9_]*|[A-Za-z_][A-Za-z0-9_]*|[&|+^()]/g)||[]).forEach(t => {
+                if(t === '~^') h += `<span class="text-pink-500 mx-2">⊙</span>`;
+                else if(t.startsWith('~')) h += `<span style="text-decoration:overline;" class="text-cyan-400 mx-1">${escapeHtml(t.substring(1))}</span>`;
                 else if(['&','|','+','^'].includes(t)) h += `<span class="text-pink-500 mx-2">${t==='&'?'·':(t==='|' || t==='+')?'+':'⊕'}</span>`;
                 else if(['(',')'].includes(t)) h += `<span class="text-slate-400 mx-1">${t}</span>`;
                 else h += `<span class="text-cyan-400 font-bold mx-1">${escapeHtml(t)}</span>`;
             });
             d.innerHTML = h; updateRightPanelTable();
         }
+
+        function insertTextAtCursor(input, text) {
+            if (!input) return;
+            const start = typeof input.selectionStart === 'number' ? input.selectionStart : input.value.length;
+            const end = typeof input.selectionEnd === 'number' ? input.selectionEnd : start;
+            input.value = input.value.slice(0, start) + text + input.value.slice(end);
+            const cursor = start + text.length;
+            if (typeof input.setSelectionRange === 'function') input.setSelectionRange(cursor, cursor);
+            if (typeof input.focus === 'function') input.focus();
+        }
+
         function insertLogicSymbol(sym) {
             const input = document.getElementById('logic-input');
-            input.value = input.value.slice(0, input.selectionStart) + sym + input.value.slice(input.selectionEnd);
+            insertTextAtCursor(input, sym);
             renderLogicFormula();
+        }
+
+        function insertChallengeExpressionSymbol(levelKey, sym) {
+            const input = document.getElementById(`challenge-expression-${levelKey}`);
+            insertTextAtCursor(input, sym);
+            updateChallengeExpression(levelKey, input?.value || '');
         }
         function clearLogicInput() { document.getElementById('logic-input').value = ''; renderLogicFormula(); }
 
@@ -2870,13 +5263,50 @@
             viewport: { x: 80, y: 40, scale: 1, minScale: 0.35, maxScale: 2.4, pan: null }
         };
 
+        function isChallengeSchematicCanvasActive() {
+            return activeTopTabId === 'tab-challenge' && !!document.getElementById('challenge-sch-surface');
+        }
+
+        function getSchematicDomIds() {
+            if (isChallengeSchematicCanvasActive()) {
+                return {
+                    surfaceId: 'challenge-sch-surface',
+                    worldId: 'challenge-sch-viewport',
+                    wiresId: 'challenge-sch-wires',
+                    previewId: 'challenge-sch-preview',
+                    zoomId: ''
+                };
+            }
+            return {
+                surfaceId: 'sch-surface',
+                worldId: 'sch-viewport',
+                wiresId: 'sch-wires',
+                previewId: 'sch-preview',
+                zoomId: 'sch-zoom-readout'
+            };
+        }
+
+        function getSchematicPreviewElement() {
+            return document.getElementById(getSchematicDomIds().previewId);
+        }
+
+        function clearSchematicPreview() {
+            const preview = getSchematicPreviewElement();
+            if (preview) preview.innerHTML = '';
+        }
+
+        function isLockedSchematicComponent(comp) {
+            return !!comp?.params?.locked && isChallengeSchematicCanvasActive();
+        }
+
         function getViewportConfig(kind) {
             if (kind === 'sch') {
+                const ids = getSchematicDomIds();
                 return {
                     state: schState.viewport,
-                    surfaceId: 'sch-surface',
-                    worldId: 'sch-viewport',
-                    zoomId: 'sch-zoom-readout',
+                    surfaceId: ids.surfaceId,
+                    worldId: ids.worldId,
+                    zoomId: ids.zoomId,
                     grid: 20
                 };
             }
@@ -3156,7 +5586,7 @@
 
         function isCanvasBackgroundTarget(kind, target) {
             const ids = kind === 'sch'
-                ? ['sch-surface', 'sch-wires', 'sch-preview', 'sch-viewport']
+                ? ['sch-surface', 'sch-wires', 'sch-preview', 'sch-viewport', 'challenge-sch-surface', 'challenge-sch-wires', 'challenge-sch-preview', 'challenge-sch-viewport']
                 : ['mixed-surface', 'mixed-wires', 'mixed-preview', 'mixed-viewport'];
             return !!target && ids.includes(target.id);
         }
@@ -3242,7 +5672,7 @@
         }
 
         function isRenameableSchematicComponent(comp) {
-            return !!comp && ['IN', 'OUT'].includes(comp.type);
+            return !!comp && ['IN', 'OUT'].includes(comp.type) && !isLockedSchematicComponent(comp);
         }
 
         const verilogReservedWords = new Set([
@@ -3263,8 +5693,7 @@
             schState.selectedWire = null;
             schState.selectedComp = comp.id;
             schState.renamingComp = comp.id;
-            const preview = document.getElementById('sch-preview');
-            if (preview) preview.innerHTML = '';
+            clearSchematicPreview();
             renderSch();
         }
 
@@ -3586,8 +6015,9 @@
         }
 
         function renderSch() {
-            const surface = document.getElementById('sch-surface');
-            const world = document.getElementById('sch-viewport');
+            const ids = getSchematicDomIds();
+            const surface = document.getElementById(ids.surfaceId);
+            const world = document.getElementById(ids.worldId);
             if (!surface || !world) return;
             world.querySelectorAll('.sch-gate').forEach(el => el.remove());
             
@@ -3595,11 +6025,14 @@
                 const spec = getGateSpec(comp);
                 const el = document.createElement('div');
                 const isRenaming = schState.renamingComp === comp.id;
-                el.className = `sch-gate ${schState.selectedComp === comp.id ? 'selected' : ''} ${isRenaming ? 'renaming' : ''}`;
+                const isLocked = isLockedSchematicComponent(comp);
+                el.className = `sch-gate ${schState.selectedComp === comp.id ? 'selected' : ''} ${isRenaming ? 'renaming' : ''} ${isLocked ? 'locked' : ''}`;
                 el.style.left = comp.x + 'px'; el.style.top = comp.y + 'px';
                 el.style.width = spec.w + 'px'; el.style.height = spec.h + 'px';
                 if (isRenameableSchematicComponent(comp)) {
                     el.title = '双击修改端口名称';
+                } else if (isLocked) {
+                    el.title = '固定端口，可连线';
                 }
                 
                 let titleColor = ['IN','OUT'].includes(comp.type) ? (comp.type==='IN'?'text-cyan-400':'text-pink-400') : (['DFF','COUNTER2','REG2','DIV'].includes(comp.type)?'text-purple-400':'text-slate-200');
@@ -3669,14 +6102,19 @@
                             schState.wireSeed++;
                             schState.wires.push({ id: schState.wireSeed, from: schState.pendingPin, to: { compId: comp.id, pinId: targetPin.id } });
                             maybeShowNewbieToast('wireDone');
+                            persistChallengeSchematicDraft();
                         }
-                        schState.pendingPin = null; document.getElementById('sch-preview').innerHTML = ''; renderSch();
+                        schState.pendingPin = null; clearSchematicPreview(); renderSch();
                         return;
                     }
 
                     if(e.button === 0) {
                         e.stopPropagation();
                         schState.selectedComp = comp.id; schState.selectedWire = null;
+                        if (isLockedSchematicComponent(comp)) {
+                            renderSch();
+                            return;
+                        }
                         const worldPoint = getWorldPoint('sch', e.clientX, e.clientY);
                         schState.dragObj = {
                             id: comp.id,
@@ -3707,6 +6145,7 @@
                         const wasClick = !schState.dragObj.moved;
                         el.releasePointerCapture(e.pointerId);
                         schState.dragObj = null;
+                        if (!wasClick) persistChallengeSchematicDraft();
                         if (wasClick) {
                             const now = Date.now();
                             const isDouble = schState.clickTracker.compId === comp.id && (now - schState.clickTracker.time) < 350;
@@ -3745,8 +6184,9 @@
                                     schState.wireSeed++;
                                     schState.wires.push({ id: schState.wireSeed, from: schState.pendingPin, to: { compId: comp.id, pinId: pin.id } });
                                     maybeShowNewbieToast('wireDone');
+                                    persistChallengeSchematicDraft();
                                 }
-                                schState.pendingPin = null; document.getElementById('sch-preview').innerHTML = ''; renderSch();
+                                schState.pendingPin = null; clearSchematicPreview(); renderSch();
                             }
                         }
                     };
@@ -3951,7 +6391,9 @@
         }
 
         function renderSchWires() {
-            const svg = document.getElementById('sch-wires'); svg.innerHTML = '';
+            const svg = document.getElementById(getSchematicDomIds().wiresId);
+            if (!svg) return;
+            svg.innerHTML = '';
             schState.wires.forEach(w => {
                 const p1 = getPinPoint(w.from.compId, w.from.pinId); const p2 = getPinPoint(w.to.compId, w.to.pinId);
                 if(!p1 || !p2) return;
@@ -3973,7 +6415,8 @@
                 const p1 = getPinPoint(schState.pendingPin.compId, schState.pendingPin.pinId); if(!p1) return;
                 const p2 = getWorldPoint('sch', e.clientX, e.clientY);
                 const path = getSchWirePath(p1, p2, [schState.pendingPin.compId]);
-                document.getElementById('sch-preview').innerHTML = `<path class="wire-preview" d="${path}" />`;
+                const preview = getSchematicPreviewElement();
+                if (preview) preview.innerHTML = `<path class="wire-preview" d="${path}" />`;
             }
         }
         function schCanvasClick(e) {
@@ -3982,7 +6425,7 @@
                 if (schState.pendingPin) {
                     schState.selectedComp = null; schState.selectedWire = null;
                     schState.pendingPin = null;
-                    document.getElementById('sch-preview').innerHTML = '';
+                    clearSchematicPreview();
                     renderSch();
                     return;
                 }
@@ -3990,7 +6433,7 @@
                 return;
             }
             if (e.button === 2) {
-                if(schState.pendingPin) { schState.pendingPin = null; document.getElementById('sch-preview').innerHTML = ''; renderSch(); }
+                if(schState.pendingPin) { schState.pendingPin = null; clearSchematicPreview(); renderSch(); }
             }
         }
 
@@ -4001,8 +6444,35 @@
             schState.selectedComp = null;
             schState.selectedWire = null;
             schState.renamingComp = null;
-            document.getElementById('sch-preview').innerHTML = '';
+            clearSchematicPreview();
             renderSch();
+        }
+
+        function deleteSelectedSchematicItem() {
+            if (schState.renamingComp) return;
+            if (schState.selectedWire) {
+                schState.wires = schState.wires.filter(w => w.id !== schState.selectedWire);
+                schState.selectedWire = null;
+                renderSch();
+                persistChallengeSchematicDraft();
+                return;
+            }
+            if (!schState.selectedComp) return;
+            const selectedId = schState.selectedComp;
+            const comp = schState.components.find(c => c.id === selectedId);
+            if (isLockedSchematicComponent(comp)) {
+                schState.selectedComp = null;
+                renderSch();
+                showToast('输入输出端口已固定', 'info');
+                return;
+            }
+            schState.components = schState.components.filter(c => c.id !== selectedId);
+            schState.wires = schState.wires.filter(w => w.from.compId !== selectedId && w.to.compId !== selectedId);
+            schState.selectedComp = null;
+            schState.pendingPin = schState.pendingPin?.compId === selectedId ? null : schState.pendingPin;
+            clearSchematicPreview();
+            renderSch();
+            persistChallengeSchematicDraft();
         }
 
         function solveSchematic(env, stateEnv = null) {
@@ -4522,12 +6992,12 @@
             
             const diagView = document.getElementById('view-diagram');
             const fsmView = document.getElementById('view-fsm');
+            const challengeSchematicActive = isChallengeSchematicCanvasActive();
+            const challengeFsmActive = activeTopTabId === 'tab-challenge' && !!document.getElementById('challenge-fsm-surface');
             
-            if(diagView && !diagView.classList.contains('hidden')) {
+            if((diagView && !diagView.classList.contains('hidden')) || challengeSchematicActive) {
                 if(e.key === 'Delete' || e.key === 'Backspace') {
-                    if (schState.renamingComp) return;
-                    if(schState.selectedComp) { schState.components = schState.components.filter(c=>c.id!==schState.selectedComp); renderSch(); }
-                    if(schState.selectedWire) { schState.wires = schState.wires.filter(w=>w.id!==schState.selectedWire); renderSch(); }
+                    deleteSelectedSchematicItem();
                 }
                 if((e.key === 'Enter' || e.key === ' ') && schState.selectedComp) {
                     const selectedComp = schState.components.find(c => c.id === schState.selectedComp);
@@ -4547,8 +7017,7 @@
                     schState.selectedComp = null;
                     schState.selectedWire = null;
                     schState.renamingComp = null;
-                    const preview = document.getElementById('sch-preview');
-                    if (preview) preview.innerHTML = '';
+                    clearSchematicPreview();
                     renderSch();
                 }
             }
@@ -4569,6 +7038,23 @@
                     }
                 }
                 if(e.key === 'Escape') { fsmData.pendingStart = null; document.getElementById('fsm-preview').innerHTML = ''; renderFsm(); }
+            }
+
+            if(challengeFsmActive) {
+                if(e.key === 'Delete' || e.key === 'Backspace') {
+                    if (deleteSelectedChallengeFsmItem()) {
+                        e.preventDefault();
+                        return;
+                    }
+                }
+                if(e.key === 'Escape' && challengeFsmData.pendingStart) {
+                    challengeFsmData.pendingStart = null;
+                    const preview = document.getElementById('challenge-fsm-preview');
+                    if (preview) preview.innerHTML = '';
+                    renderChallengeFsm();
+                    e.preventDefault();
+                    return;
+                }
             }
 
             const mixedView = document.getElementById('tab-mixed');
@@ -4607,8 +7093,8 @@
         // --- Code Generators & Evaluators ---
         function naiveSynthesize(expr, outputName = 'Y') {
             try {
-                const tokens = expr.match(/[A-Za-z0-9_]+|[&|^~()]/g) || [];
-                const precedence = {'~': 3, '&': 2, '^': 1, '|': 0};
+                const tokens = normalizeLogicExpressionText(expr).match(/~\^|[A-Za-z0-9_]+|[&|^~()]/g) || [];
+                const precedence = {'~': 3, '&': 2, '^': 1, '~^': 1, '|': 0};
                 const output = []; const operators = [];
                 for (let t of tokens) {
                     if (/[A-Za-z0-9_]+/.test(t)) { output.push(t); }
@@ -4634,7 +7120,7 @@
                     } else {
                         let b = stack.pop() || "1'b0"; let a = stack.pop() || "1'b0"; let out = (i === output.length - 1) ? outputName : `w${wireIdx++}`;
                         if (out !== outputName) wireDecls.push(out);
-                        let gate = t === '&' ? 'and' : t === '|' ? 'or' : 'xor';
+                        let gate = t === '&' ? 'and' : t === '|' ? 'or' : t === '~^' ? 'xnor' : 'xor';
                         code += `    ${gate} U${gateIdx++} (${out}, ${a}, ${b});\n`; stack.push(out);
                     }
                 }
@@ -4722,7 +7208,12 @@
         }
 
         function generateFsmBehavioralVerilog() {
-            const states = fsmData.states; const transitions = fsmData.transitions;
+            return generateFsmBehavioralVerilogFromData(fsmData);
+        }
+
+        function generateFsmBehavioralVerilogFromData(data) {
+            const states = data.states || [];
+            const transitions = data.transitions || [];
             let hasOutput = false; let inputs = new Set();
             
             let parsedTrans = transitions.map(t => {
@@ -8660,6 +11151,8 @@ endmodule`;
                 schState.selectedComp = null;
                 schState.selectedWire = null;
                 renderSch();
+            } else if (hadSchPan && schMoved) {
+                persistChallengeSchematicDraft();
             }
             if (hadMixedPan && !mixedMoved) {
                 mixedState.selectedComp = null;
@@ -9544,7 +12037,7 @@ function updateMixedReadouts() {
             box.prepend(row);
             while (box.children.length > 80) box.removeChild(box.lastChild);
         }
-        const tabs = ['tab-define', 'tab-verilog', 'tab-wave', 'tab-mixed'];
+        const tabs = ['tab-define', 'tab-verilog', 'tab-wave', 'tab-mixed', 'tab-challenge'];
         function switchTab(tId) {
             activeTopTabId = tId;
             document.querySelectorAll('.tab-btn').forEach(b => {
@@ -9566,6 +12059,10 @@ function updateMixedReadouts() {
 
             if (tId === 'tab-wave') evaluateSimulation();
             if (tId === 'tab-verilog') autoSyncHdlMode();
+            if (tId === 'tab-challenge') {
+                renderChallengeTab();
+                renderChallengeStrip();
+            }
             updateWorkflowBar();
             updateWaveBlockingHint();
 

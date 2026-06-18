@@ -16,6 +16,7 @@ RUN npm ci --omit=dev
 COPY DCDV.html server.js ./
 COPY backend ./backend
 COPY screenshots ./screenshots
+COPY assets ./assets
 
 USER node
 

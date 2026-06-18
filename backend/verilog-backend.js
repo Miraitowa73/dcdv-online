@@ -308,7 +308,7 @@ function extractModuleBlocks(source) {
     if (cleaned[cursor] === '(') {
       const portEnd = findMatchingParen(cleaned, cursor);
       if (portEnd < 0) break;
-      portListText = source.slice(cursor + 1, portEnd);
+      portListText = cleaned.slice(cursor + 1, portEnd);
       cursor = portEnd + 1;
     }
 
@@ -620,6 +620,14 @@ function normalizeRequestedSignals(ports, signals) {
 function buildSimulationTestbench({ topModule, ports, signals, stepNs }) {
   const steps = coerceStepCount(signals);
   const inputPorts = ports.filter((port) => port.direction === 'input');
+  const orderedInputPorts = [...inputPorts].sort((a, b) => {
+    const rank = (port) => {
+      if (/^(clk|clock)$/i.test(port.name)) return 2;
+      if (/^(rst|reset)$/i.test(port.name)) return 1;
+      return 0;
+    };
+    return rank(a) - rank(b);
+  });
   const outputPorts = ports.filter((port) => port.direction !== 'input');
   const signalMap = new Map((signals || []).map((signal) => [signal.name, signal]));
 
@@ -634,7 +642,7 @@ function buildSimulationTestbench({ topModule, ports, signals, stepNs }) {
 
   const stepBlocks = [];
   for (let stepIndex = 0; stepIndex < steps; stepIndex += 1) {
-    const assigns = inputPorts
+    const assigns = orderedInputPorts
       .map((port) => {
         const signal = signalMap.get(port.name);
         const rawValue = signal?.values?.[stepIndex] ?? 0;
@@ -644,7 +652,7 @@ function buildSimulationTestbench({ topModule, ports, signals, stepNs }) {
       .join('\n');
 
     const outputWrites = outputPorts
-      .map((port) => `        $write(" |${port.name}="); $write("%0*b", ${Math.max(1, port.width)}, ${port.name});`)
+      .map((port) => `        $write(" |${port.name}="); $write("%b", ${port.name});`)
       .join('\n');
 
     stepBlocks.push(

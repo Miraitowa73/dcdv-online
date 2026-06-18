@@ -14,8 +14,16 @@ DCDV runs as one Docker container:
 - Runtime: Custom Container HTTP function
 - Container port: `7860`
 - Image repository: `registry.cn-hangzhou.aliyuncs.com/dcdv/dcdv-online`
-- First image tag: `fc-20260611-1`
+- Current image tag: `fc-20260618-1`
 - Public access: Function Compute default domain
+
+## Release Notes
+
+`fc-20260618-1` contains the latest challenge build:
+
+- Challenge knowledge radar panels.
+- FSM practice canvas shown directly on the challenge detail page.
+- Challenge scene image assets under `assets/challenges/`.
 
 ## Files for the Gitee Repository
 
@@ -25,6 +33,7 @@ Commit these files and folders:
 - `server.js`
 - `backend/`
 - `screenshots/`
+- `assets/challenges/`
 - `package.json`
 - `package-lock.json`
 - `Dockerfile`
@@ -59,7 +68,7 @@ In Alibaba Cloud Container Registry:
 - Branch: `main`
 - Dockerfile path: `/Dockerfile`
 - Build context: `/`
-- Tag: `fc-20260611-1`
+- Tag: `fc-20260618-1`
 
 The build log should show `apt-get install ... iverilog` and `npm ci --omit=dev`.
 
@@ -69,7 +78,7 @@ Create a Custom Container HTTP function:
 
 - Service name: `dcdv-fc`
 - Function name: `dcdv-online`
-- Image: `registry.cn-hangzhou.aliyuncs.com/dcdv/dcdv-online:fc-20260611-1`
+- Image: `registry.cn-hangzhou.aliyuncs.com/dcdv/dcdv-online:fc-20260618-1`
 - Listening port: `7860`
 - CPU and memory: `0.5 vCPU / 1 GB`
 - Timeout: `180` seconds
