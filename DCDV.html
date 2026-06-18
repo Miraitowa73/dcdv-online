@@ -3617,6 +3617,7 @@
                 el.className = `fsm-state ${isSelected ? 'selected' : ''} ${isPending ? 'pending' : ''}`;
                 el.style.left = `${state.x}px`;
                 el.style.top = `${state.y}px`;
+                el.dataset.id = String(state.id);
                 el.innerText = state.label;
                 el.onpointerdown = (event) => {
                     event.stopPropagation();
@@ -3641,6 +3642,10 @@
                 };
                 el.onpointermove = (event) => {
                     if (challengeFsmData.dragObj?.id !== state.id) return;
+                    if (!isPrimaryPointerStillDown(event)) {
+                        finishPointerInteractions({ source: 'cancel', render: true });
+                        return;
+                    }
                     const rect = surface.getBoundingClientRect();
                     state.x = Math.max(44, Math.min(surface.clientWidth - 44, event.clientX - rect.left - challengeFsmData.dragObj.offsetX));
                     state.y = Math.max(44, Math.min(surface.clientHeight - 44, event.clientY - rect.top - challengeFsmData.dragObj.offsetY));
@@ -3650,11 +3655,12 @@
                 };
                 el.onpointerup = (event) => {
                     if (event.button === 0 && challengeFsmData.dragObj) {
-                        el.releasePointerCapture(event.pointerId);
+                        safeReleasePointerCapture(el, event.pointerId);
                         challengeFsmData.dragObj = null;
                         saveActiveChallengeFsmDraft();
                     }
                 };
+                el.onpointercancel = () => finishPointerInteractions({ source: 'cancel', render: true });
                 surface.appendChild(el);
             });
             renderChallengeFsmWires();
@@ -3730,6 +3736,26 @@
         }
 
         function challengeFsmMouseMove(event) {
+            if (challengeFsmData.dragObj) {
+                if (!isPrimaryPointerStillDown(event)) {
+                    finishPointerInteractions({ source: 'cancel', render: true });
+                    return;
+                }
+                const surface = document.getElementById('challenge-fsm-surface');
+                if (!surface) return;
+                const state = challengeFsmData.states.find(item => item.id === challengeFsmData.dragObj.id);
+                if (!state) return;
+                const rect = surface.getBoundingClientRect();
+                state.x = Math.max(44, Math.min(surface.clientWidth - 44, event.clientX - rect.left - challengeFsmData.dragObj.offsetX));
+                state.y = Math.max(44, Math.min(surface.clientHeight - 44, event.clientY - rect.top - challengeFsmData.dragObj.offsetY));
+                const el = surface.querySelector(`.fsm-state[data-id="${state.id}"]`);
+                if (el) {
+                    el.style.left = `${state.x}px`;
+                    el.style.top = `${state.y}px`;
+                }
+                renderChallengeFsmWires();
+                return;
+            }
             if (!challengeFsmData.pendingStart) return;
             const surface = document.getElementById('challenge-fsm-surface');
             const preview = document.getElementById('challenge-fsm-preview');
@@ -5655,6 +5681,10 @@
         function updateViewportPan(kind, e) {
             const cfg = getViewportConfig(kind);
             if (!cfg.state.pan) return false;
+            if (!isPrimaryPointerStillDown(e)) {
+                finishPointerInteractions({ source: 'cancel', render: true });
+                return true;
+            }
             const dx = e.clientX - cfg.state.pan.startClientX;
             const dy = e.clientY - cfg.state.pan.startClientY;
             if (Math.abs(dx) > 2 || Math.abs(dy) > 2) cfg.state.pan.moved = true;
@@ -6116,6 +6146,7 @@
                 el.className = `sch-gate ${schState.selectedComp === comp.id ? 'selected' : ''} ${isRenaming ? 'renaming' : ''} ${isLocked ? 'locked' : ''}`;
                 el.style.left = comp.x + 'px'; el.style.top = comp.y + 'px';
                 el.style.width = spec.w + 'px'; el.style.height = spec.h + 'px';
+                el.dataset.id = String(comp.id);
                 if (isRenameableSchematicComponent(comp)) {
                     el.title = '双击修改端口名称';
                 } else if (isLocked) {
@@ -6217,6 +6248,10 @@
                 };
                 el.onpointermove = (e) => {
                     if(schState.dragObj && schState.dragObj.id === comp.id) {
+                        if (!isPrimaryPointerStillDown(e)) {
+                            finishPointerInteractions({ source: 'cancel', render: true });
+                            return;
+                        }
                         const dx = e.clientX - schState.dragObj.startX;
                         const dy = e.clientY - schState.dragObj.startY;
                         if (Math.abs(dx) > 4 || Math.abs(dy) > 4) schState.dragObj.moved = true;
@@ -6230,7 +6265,7 @@
                 el.onpointerup = (e) => {
                     if(e.button === 0 && schState.dragObj && schState.dragObj.id === comp.id) {
                         const wasClick = !schState.dragObj.moved;
-                        el.releasePointerCapture(e.pointerId);
+                        safeReleasePointerCapture(el, e.pointerId);
                         schState.dragObj = null;
                         if (!wasClick) persistChallengeSchematicDraft();
                         if (wasClick) {
@@ -6245,6 +6280,7 @@
                         }
                     }
                 };
+                el.onpointercancel = () => finishPointerInteractions({ source: 'cancel', render: true });
                 el.ondblclick = (e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -6498,6 +6534,28 @@
 
         function schMouseMove(e) {
             if (updateViewportPan('sch', e)) return;
+            if (schState.dragObj) {
+                if (!isPrimaryPointerStillDown(e)) {
+                    finishPointerInteractions({ source: 'cancel', render: true });
+                    return;
+                }
+                const comp = schState.components.find(c => c.id === schState.dragObj.id);
+                if (comp) {
+                    const dx = e.clientX - schState.dragObj.startX;
+                    const dy = e.clientY - schState.dragObj.startY;
+                    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) schState.dragObj.moved = true;
+                    const worldPoint = getWorldPoint('sch', e.clientX, e.clientY);
+                    comp.x = worldPoint.x - schState.dragObj.offsetX;
+                    comp.y = worldPoint.y - schState.dragObj.offsetY;
+                    const el = document.querySelector(`#${getSchematicDomIds().worldId} .sch-gate[data-id="${comp.id}"]`);
+                    if (el) {
+                        el.style.left = comp.x + 'px';
+                        el.style.top = comp.y + 'px';
+                    }
+                    renderSchWires();
+                }
+                return;
+            }
             if(schState.pendingPin) {
                 const p1 = getPinPoint(schState.pendingPin.compId, schState.pendingPin.pinId); if(!p1) return;
                 const p2 = getWorldPoint('sch', e.clientX, e.clientY);
@@ -6873,6 +6931,7 @@
                 const isPending = fsmData.pendingStart === state.id;
                 el.className = `fsm-state ${isSelected ? 'selected' : ''} ${isPending ? 'pending' : ''}`;
                 el.style.left = state.x + 'px'; el.style.top = state.y + 'px';
+                el.dataset.id = String(state.id);
                 el.innerText = state.label;
                 
                 el.onpointerdown = (e) => {
@@ -6890,14 +6949,19 @@
                 };
                 el.onpointermove = (e) => {
                     if(fsmData.dragObj && fsmData.dragObj.id === state.id) {
+                        if (!isPrimaryPointerStillDown(e)) {
+                            finishPointerInteractions({ source: 'cancel', render: true });
+                            return;
+                        }
                         state.x = e.clientX - fsmData.dragObj.offsetX; state.y = e.clientY - fsmData.dragObj.offsetY;
                         el.style.left = state.x + 'px'; el.style.top = state.y + 'px';
                         renderFsmWires();
                     }
                 };
                 el.onpointerup = (e) => {
-                    if(e.button === 0 && fsmData.dragObj) { el.releasePointerCapture(e.pointerId); fsmData.dragObj = null; }
+                    if(e.button === 0 && fsmData.dragObj) { safeReleasePointerCapture(el, e.pointerId); fsmData.dragObj = null; }
                 };
+                el.onpointercancel = () => finishPointerInteractions({ source: 'cancel', render: true });
                 surface.appendChild(el);
             });
 
@@ -6975,6 +7039,24 @@
         }
 
         function fsmMouseMove(e) {
+            if(fsmData.dragObj) {
+                if (!isPrimaryPointerStillDown(e)) {
+                    finishPointerInteractions({ source: 'cancel', render: true });
+                    return;
+                }
+                const state = fsmData.states.find(item => item.id === fsmData.dragObj.id);
+                if (state) {
+                    state.x = e.clientX - fsmData.dragObj.offsetX;
+                    state.y = e.clientY - fsmData.dragObj.offsetY;
+                    const el = document.querySelector(`#fsm-surface .fsm-state[data-id="${state.id}"]`);
+                    if (el) {
+                        el.style.left = state.x + 'px';
+                        el.style.top = state.y + 'px';
+                    }
+                    renderFsmWires();
+                }
+                return;
+            }
             if(fsmData.pendingStart) {
                 const surface = document.getElementById('fsm-surface');
                 const rect = surface.getBoundingClientRect();
@@ -11269,6 +11351,10 @@ endmodule`;
             if (updateViewportPan('mixed', e)) return;
 
             if (mixedState.wireDrag) {
+                if (!isPrimaryPointerStillDown(e)) {
+                    finishPointerInteractions({ source: 'cancel', render: true });
+                    return;
+                }
                 const wire = mixedState.wires.find(w => w.id === mixedState.wireDrag.wireId);
                 if (wire) {
                     const worldPoint = getWorldPoint('mixed', e.clientX, e.clientY);
@@ -11286,6 +11372,10 @@ endmodule`;
             }
 
             if (mixedState.dragObj) {
+                if (!isPrimaryPointerStillDown(e)) {
+                    finishPointerInteractions({ source: 'cancel', render: true });
+                    return;
+                }
                 const comp = mixedState.components.find(c => c.id === mixedState.dragObj.id);
                 if (comp) {
                     const worldPoint = getWorldPoint('mixed', e.clientX, e.clientY);
@@ -11317,26 +11407,71 @@ endmodule`;
             beginViewportPan('mixed', e);
         }
 
-        window.addEventListener('pointerup', () => {
+        function isPrimaryPointerStillDown(event) {
+            if (!event || typeof event.buttons !== 'number') return true;
+            return (event.buttons & 1) === 1;
+        }
+
+        function safeReleasePointerCapture(element, pointerId) {
+            try {
+                if (element?.hasPointerCapture?.(pointerId)) {
+                    element.releasePointerCapture(pointerId);
+                }
+            } catch (error) {
+                // Pointer capture may already be gone if the browser canceled the pointer.
+            }
+        }
+
+        function finishPointerInteractions(options = {}) {
+            const render = options.render !== false;
             const hadSchPan = !!schState.viewport.pan;
             const hadMixedPan = !!mixedState.viewport.pan;
+            const hadSchDrag = !!schState.dragObj;
+            const schDragMoved = !!schState.dragObj?.moved;
+            const hadFsmDrag = !!fsmData.dragObj;
+            const hadChallengeFsmDrag = !!challengeFsmData.dragObj;
+            const hadMixedDrag = !!mixedState.dragObj;
+            const hadMixedWireDrag = !!mixedState.wireDrag;
             const schMoved = endViewportPan('sch');
             const mixedMoved = endViewportPan('mixed');
+            schState.dragObj = null;
+            fsmData.dragObj = null;
+            challengeFsmData.dragObj = null;
             mixedState.dragObj = null;
             mixedState.wireDrag = null;
+
+            if (schDragMoved) persistChallengeSchematicDraft();
+            if (hadChallengeFsmDrag) saveActiveChallengeFsmDraft();
 
             if (hadSchPan && !schMoved) {
                 schState.selectedComp = null;
                 schState.selectedWire = null;
-                renderSch();
             } else if (hadSchPan && schMoved) {
                 persistChallengeSchematicDraft();
             }
             if (hadMixedPan && !mixedMoved) {
                 mixedState.selectedComp = null;
                 mixedState.selectedWire = null;
-                renderMixed();
             }
+
+            if (!render) return;
+            if (hadSchPan || hadSchDrag) renderSch();
+            if (hadFsmDrag) renderFsm();
+            if (hadChallengeFsmDrag) renderChallengeFsm();
+            if (hadMixedPan || hadMixedDrag || hadMixedWireDrag) renderMixed();
+        }
+
+        window.addEventListener('pointerup', () => {
+            finishPointerInteractions({ source: 'pointerup', render: true });
+        });
+        window.addEventListener('pointercancel', () => {
+            finishPointerInteractions({ source: 'pointercancel', render: true });
+        });
+        window.addEventListener('blur', () => {
+            finishPointerInteractions({ source: 'blur', render: true });
+        });
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) finishPointerInteractions({ source: 'visibilitychange', render: true });
         });
 
         function refreshMixedInspector() {
