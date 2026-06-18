@@ -2510,7 +2510,7 @@
                             步长(ns)
                             <input id="wave-step-ns" type="number" min="1" value="10" oninput="updateWaveStepNs(this.value)" class="w-24 rounded-lg border border-slate-700 bg-slate-900/70 px-3 py-2 text-cyan-300 outline-none">
                         </label>
-                        <span class="text-xs text-cyan-300">波形已改为实时刷新</span>
+                        <span id="wave-refresh-status" class="text-xs text-cyan-300">波形已改为实时刷新</span>
                     </div>
                 </div>
                 <div id="wave-blocking-hint" class="wave-blocking-hint mb-4 shrink-0 hidden">
@@ -7942,9 +7942,19 @@
         }
 
         let waveData = { steps: 16, stepNs: 10, signals: [] };
+        let waveBackendSimulationTimer = null;
+        let waveBackendSimulationInFlight = false;
+        let waveBackendSimulationQueued = false;
 
         function useCompiledVerilogWaveModel() {
             return compiledDesign.ports.length > 0 && (compiledDesign.compileOk || !!compiledDesign.selectedTop);
+        }
+
+        function setWaveRefreshStatus(message, className = 'text-xs text-cyan-300') {
+            const status = document.getElementById('wave-refresh-status');
+            if (!status) return;
+            status.className = className;
+            status.textContent = message;
         }
 
         function updateWaveStepNs(value) {
@@ -8020,7 +8030,8 @@
                 .forEach(sig => {
                     sig.values = Array.from({ length: waveData.steps }, () => getDefaultWaveValue(sig.width));
                 });
-            setCompiledSummary('输入或步长已更新，波形会按当前定义实时刷新。', 'text-cyan-300');
+            setCompiledSummary('输入或步长已更新，正在按当前 HDL 重新仿真。', 'text-cyan-300');
+            setWaveRefreshStatus('输入已变化，等待真实仿真...', 'text-xs text-amber-300');
         }
 
         function refreshWaveAfterInputEdit() {
@@ -8030,6 +8041,7 @@
                     evaluateSimulation();
                 } else {
                     renderWaveformUI();
+                    scheduleWaveBackendSimulation();
                 }
                 return;
             }
@@ -8093,6 +8105,7 @@
             syncWaveData();
             if (useCompiledVerilogWaveModel() && !canUseDefinitionWavePreview()) {
                 renderWaveformUI();
+                scheduleWaveBackendSimulation();
                 return;
             }
 
@@ -8357,21 +8370,39 @@
             document.getElementById(viewId).classList.remove('hidden');
         }
 
-        async function runSimulation() {
+        function scheduleWaveBackendSimulation(delayMs = 250) {
+            if (!useCompiledVerilogWaveModel() || canUseDefinitionWavePreview()) return;
+            if (activeTopTabId !== 'tab-wave') return;
+            clearTimeout(waveBackendSimulationTimer);
+            setWaveRefreshStatus('真实仿真排队中...', 'text-xs text-amber-300');
+            waveBackendSimulationTimer = setTimeout(() => {
+                runSimulation({ automatic: true });
+            }, delayMs);
+        }
+
+        async function runSimulation(options = {}) {
+            const { automatic = false } = options;
+            if (waveBackendSimulationInFlight) {
+                if (automatic) waveBackendSimulationQueued = true;
+                return;
+            }
             if (!ensureDefinitionAndHdlConsistency('运行仿真')) return;
             if (!useCompiledVerilogWaveModel()) {
                 evaluateSimulation();
-                showToast('仿真刷新完毕', 'success');
+                setWaveRefreshStatus('波形已按定义实时刷新');
+                if (!automatic) showToast('仿真刷新完毕', 'success');
                 return;
             }
 
             const code = getVerilogEditorCode().trim();
             if (!code) {
-                showToast('请先输入 Verilog 代码', 'info');
+                setWaveRefreshStatus('请先输入 Verilog 代码', 'text-xs text-amber-300');
+                if (!automatic) showToast('请先输入 Verilog 代码', 'info');
                 return;
             }
 
             if (!compiledDesign.compileOk) {
+                setWaveRefreshStatus('正在先执行编译检查...', 'text-xs text-amber-300');
                 await runCompile();
                 if (!compiledDesign.compileOk) return;
             }
@@ -8383,6 +8414,8 @@
                 button.innerHTML = '<i data-lucide="loader-circle" class="w-4 h-4 mr-2 animate-spin"></i> 仿真中';
                 lucide.createIcons();
             }
+            waveBackendSimulationInFlight = true;
+            setWaveRefreshStatus('正在调用真实仿真...', 'text-xs text-amber-300');
             appendCompileConsoleEntry('正在调用 vvp 运行真实仿真并回填波形...', 'cyan');
 
             try {
@@ -8398,20 +8431,28 @@
                 });
                 syncCompiledDesignFromResponse(result, { fromSimulation: true });
                 if (!result.ok) {
-                    showToast('仿真失败', 'error');
+                    setWaveRefreshStatus('真实仿真失败', 'text-xs text-red-300');
+                    if (!automatic) showToast('仿真失败', 'error');
                     return;
                 }
                 mergeSimulationOutputs(result.outputs || []);
                 renderWaveformUI();
-                showToast('真实仿真完成', 'success');
+                setWaveRefreshStatus('真实仿真完成，输出已回填', 'text-xs text-emerald-300');
+                if (!automatic) showToast('真实仿真完成', 'success');
             } catch (error) {
                 appendCompileConsoleEntry(error.message || '真实仿真失败：无法连接本地后端。', 'red');
-                showToast('本地仿真失败', 'error');
+                setWaveRefreshStatus('真实仿真失败：后端不可用', 'text-xs text-red-300');
+                if (!automatic) showToast('本地仿真失败', 'error');
             } finally {
+                waveBackendSimulationInFlight = false;
                 if (button) {
                     button.disabled = false;
                     button.innerHTML = original;
                     lucide.createIcons();
+                }
+                if (waveBackendSimulationQueued) {
+                    waveBackendSimulationQueued = false;
+                    scheduleWaveBackendSimulation();
                 }
             }
         }
